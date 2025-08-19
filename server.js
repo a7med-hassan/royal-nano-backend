@@ -7,30 +7,67 @@ const fs = require("fs");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Set environment
+const isProduction = process.env.NODE_ENV === "production";
+
+// Global error handler
+process.on("uncaughtException", (error) => {
+  console.error("Uncaught Exception:", error);
+  // Don't exit in production (Vercel)
+  if (!isProduction) {
+    process.exit(1);
+  }
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled Rejection at:", promise, "reason:", reason);
+  // Don't exit in production (Vercel)
+  if (!isProduction) {
+    process.exit(1);
+  }
+});
+
 // Middleware
 app.use(cors());
 app.use(express.json());
 
-// Create uploads directory if it doesn't exist
+// Request logging middleware
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  next();
+});
+
+// Create uploads directory if it doesn't exist (only in development)
 const uploadsDir = path.join(__dirname, "uploads");
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+if (!isProduction && !fs.existsSync(uploadsDir)) {
+  try {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  } catch (error) {
+    console.warn("Could not create uploads directory:", error.message);
+  }
 }
 
 // Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/");
-  },
-  filename: function (req, file, cb) {
-    // Generate unique filename with timestamp
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(
-      null,
-      file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname)
-    );
-  },
-});
+let storage;
+if (isProduction) {
+  // For Vercel production, use memory storage
+  storage = multer.memoryStorage();
+} else {
+  // For local development, use disk storage
+  storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, "uploads/");
+    },
+    filename: function (req, file, cb) {
+      // Generate unique filename with timestamp
+      const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+      cb(
+        null,
+        file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname)
+      );
+    },
+  });
+}
 
 const upload = multer({
   storage: storage,
@@ -86,6 +123,7 @@ app.post("/api/contact", (req, res) => {
     res.status(500).json({
       success: false,
       message: "Internal server error",
+      error: !isProduction ? error.message : "Something went wrong",
     });
   }
 });
@@ -121,28 +159,39 @@ app.post("/api/join", upload.single("cv"), (req, res) => {
     console.log("Position:", position);
     console.log("Experience:", experience || "Not specified");
     console.log("Message:", message || "No message");
-    console.log("CV File:", cvFile.filename);
-    console.log("CV Original Name:", cvFile.originalname);
-    console.log("CV Size:", (cvFile.size / 1024).toFixed(2) + " KB");
+
+    if (isProduction) {
+      console.log("CV File: Memory Storage (Production)");
+      console.log("CV Original Name:", cvFile.originalname);
+      console.log("CV Size:", (cvFile.size / 1024).toFixed(2) + " KB");
+    } else {
+      console.log("CV File:", cvFile.filename);
+      console.log("CV Original Name:", cvFile.originalname);
+      console.log("CV Size:", (cvFile.size / 1024).toFixed(2) + " KB");
+    }
+
     console.log("Timestamp:", new Date().toISOString());
     console.log("============================");
 
     res.json({
       success: true,
       message: "Join form received",
-      cv: cvFile.filename,
+      cv: isProduction ? "Memory Storage" : cvFile.filename,
     });
   } catch (error) {
     console.error("Error in join endpoint:", error);
     res.status(500).json({
       success: false,
       message: "Internal server error",
+      error: !isProduction ? error.message : "Something went wrong",
     });
   }
 });
 
 // Error handling middleware for multer
 app.use((error, req, res, next) => {
+  console.error("Error middleware:", error);
+
   if (error instanceof multer.MulterError) {
     if (error.code === "LIMIT_FILE_SIZE") {
       return res.status(400).json({
@@ -159,7 +208,12 @@ app.use((error, req, res, next) => {
     });
   }
 
-  next(error);
+  // Generic error handler
+  res.status(500).json({
+    success: false,
+    message: "Internal server error",
+    error: !isProduction ? error.message : "Something went wrong",
+  });
 });
 
 // Health check endpoint
@@ -188,8 +242,14 @@ app.get("/", (req, res) => {
 // Start server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-  console.log(`Uploads directory: ${uploadsDir}`);
-  console.log(`Health check: http://localhost:${PORT}/api/health`);
+  if (!isProduction) {
+    console.log(`Uploads directory: ${uploadsDir}`);
+    console.log(`Health check: http://localhost:${PORT}/api/health`);
+  } else {
+    console.log(`Environment: Production (Vercel)`);
+    console.log(`Health check: /api/health`);
+    console.log(`File uploads: Memory Storage (no disk writes)`);
+  }
 });
 
 module.exports = app;
