@@ -218,12 +218,16 @@ const server = app.listen(PORT, () => {
   );
   console.log(`🤝 Join form: http://localhost:${PORT}/api/join`);
 
-  // Wait a bit for MongoDB connection to establish
+  // Check MongoDB connection status after a delay
   setTimeout(() => {
-    const mongoStatus =
-      mongoose.connection.readyState === 1 ? "✅ Connected" : "❌ Disconnected";
-    console.log(`🗄️ MongoDB: ${mongoStatus}`);
-  }, 1000);
+    if (mongoose.connection.readyState === 1) {
+      console.log(`🗄️ MongoDB: ✅ Connected`);
+      console.log(`📊 Database: royalNano`);
+      console.log(`🌐 Cluster: ryoalnan`);
+    } else {
+      console.log(`🗄️ MongoDB: ❌ Disconnected - Check connection`);
+    }
+  }, 2000);
 });
 
 // Export for Vercel
