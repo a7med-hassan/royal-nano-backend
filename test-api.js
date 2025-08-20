@@ -15,9 +15,12 @@ async function testAPI() {
     // Test contact form submission
     console.log("\n2. Testing Contact Form Submission...");
     const contactData = {
-      fullName: "أحمد حسن",
-      email: "ahmed@example.com",
-      message: "مرحباً، أريد معلومات عن خدماتكم",
+      contactName: "أحمد حسن",
+      contactEmail: "ahmed@example.com",
+      contactPhone: "+966501234567",
+      contactSubject: "استفسار عن الخدمات",
+      contactMessage: "مرحباً، أريد معلومات عن خدماتكم",
+      contactType: "general",
     };
     const contact = await axios.post(`${BASE_URL}/contact`, contactData);
     console.log("✅ Contact Form:", contact.data);
@@ -27,7 +30,12 @@ async function testAPI() {
     const joinData = {
       fullName: "محمد علي",
       phoneNumber: "+966501234567",
-      carType: "سيدان",
+      email: "mohamed@example.com",
+      jobPosition: "سائق",
+      experience: "5 سنوات في مجال النقل",
+      additionalMessage: "أريد العمل بدوام كامل وأمتلك رخصة قيادة سارية",
+      cvFileName: "mohamed_cv.pdf",
+      cvPath: "/uploads/cv/mohamed_cv.pdf",
     };
     const join = await axios.post(`${BASE_URL}/join`, joinData);
     console.log("✅ Join Form:", join.data);

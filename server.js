@@ -30,19 +30,36 @@ mongoose
     );
   });
 
-// Contact Form Schema
+// Contact Form Schema - للتواصل العام مع الشركة
 const contactSchema = new mongoose.Schema({
-  fullName: { type: String, required: true },
-  email: { type: String, required: true },
-  message: { type: String, required: true },
+  contactName: { type: String, required: true }, // اسم صاحب الاستفسار
+  contactEmail: { type: String, required: true }, // البريد الإلكتروني
+  contactPhone: { type: String, required: false }, // رقم الهاتف (اختياري)
+  contactSubject: { type: String, required: true }, // موضوع الاستفسار
+  contactMessage: { type: String, required: true }, // الرسالة
+  contactType: {
+    type: String,
+    enum: ["general", "support", "partnership", "other"],
+    default: "general",
+  }, // نوع الاستفسار
   createdAt: { type: Date, default: Date.now },
 });
 
-// Join Form Schema
+// Join Form Schema - نموذج التقديم للوظائف
 const joinSchema = new mongoose.Schema({
-  fullName: { type: String, required: true },
-  phoneNumber: { type: String, required: true },
-  carType: { type: String, required: true },
+  fullName: { type: String, required: true }, // الاسم الكامل *
+  phoneNumber: { type: String, required: true }, // رقم الهاتف *
+  email: { type: String, required: false }, // البريد الإلكتروني
+  jobPosition: { type: String, required: true }, // الوظيفة المطلوبة *
+  experience: { type: String, required: false }, // الخبرة السابقة
+  additionalMessage: { type: String, required: false }, // رسالة إضافية
+  cvFileName: { type: String, required: false }, // اسم ملف السيرة الذاتية
+  cvPath: { type: String, required: false }, // مسار ملف السيرة الذاتية
+  status: {
+    type: String,
+    enum: ["pending", "reviewed", "accepted", "rejected"],
+    default: "pending",
+  }, // حالة الطلب
   createdAt: { type: Date, default: Date.now },
 });
 
@@ -64,7 +81,7 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// Contact form - POST endpoint
+// Contact form - POST endpoint - للتواصل العام والاستفسارات
 app.post("/api/contact", async (req, res) => {
   try {
     // Check MongoDB connection
@@ -75,16 +92,30 @@ app.post("/api/contact", async (req, res) => {
       });
     }
 
-    const { fullName, email, message } = req.body;
+    const {
+      contactName,
+      contactEmail,
+      contactPhone,
+      contactSubject,
+      contactMessage,
+      contactType,
+    } = req.body;
 
-    if (!fullName || !email || !message) {
+    if (!contactName || !contactEmail || !contactSubject || !contactMessage) {
       return res.status(400).json({
         success: false,
-        message: "All fields are required",
+        message: "Name, email, subject, and message are required",
       });
     }
 
-    const contact = new Contact({ fullName, email, message });
+    const contact = new Contact({
+      contactName,
+      contactEmail,
+      contactPhone,
+      contactSubject,
+      contactMessage,
+      contactType,
+    });
     await contact.save();
 
     res.status(201).json({
@@ -102,7 +133,7 @@ app.post("/api/contact", async (req, res) => {
   }
 });
 
-// Contact form - GET endpoint (to retrieve contacts)
+// Contact form - GET endpoint - استرجاع رسائل التواصل والاستفسارات
 app.get("/api/contact", async (req, res) => {
   try {
     // Check MongoDB connection
@@ -128,7 +159,7 @@ app.get("/api/contact", async (req, res) => {
   }
 });
 
-// Join form - POST endpoint
+// Join form - POST endpoint - نموذج التقديم للوظائف
 app.post("/api/join", async (req, res) => {
   try {
     // Check MongoDB connection
@@ -139,21 +170,39 @@ app.post("/api/join", async (req, res) => {
       });
     }
 
-    const { fullName, phoneNumber, carType } = req.body;
+    const {
+      fullName,
+      phoneNumber,
+      email,
+      jobPosition,
+      experience,
+      additionalMessage,
+      cvFileName,
+      cvPath,
+    } = req.body;
 
-    if (!fullName || !phoneNumber || !carType) {
+    if (!fullName || !phoneNumber || !jobPosition) {
       return res.status(400).json({
         success: false,
-        message: "All fields are required",
+        message: "Full name, phone number, and job position are required",
       });
     }
 
-    const join = new Join({ fullName, phoneNumber, carType });
+    const join = new Join({
+      fullName,
+      phoneNumber,
+      email,
+      jobPosition,
+      experience,
+      additionalMessage,
+      cvFileName,
+      cvPath,
+    });
     await join.save();
 
     res.status(201).json({
       success: true,
-      message: "Join request submitted successfully!",
+      message: "Job application submitted successfully!",
       data: join,
     });
   } catch (error) {
@@ -166,7 +215,7 @@ app.post("/api/join", async (req, res) => {
   }
 });
 
-// Join form - GET endpoint (to retrieve join requests)
+// Join form - GET endpoint - استرجاع طلبات التوظيف
 app.get("/api/join", async (req, res) => {
   try {
     // Check MongoDB connection
