@@ -15,12 +15,11 @@ async function testAPI() {
     // Test contact form submission
     console.log("\n2. Testing Contact Form Submission...");
     const contactData = {
-      contactName: "أحمد حسن",
-      contactEmail: "ahmed@example.com",
-      contactPhone: "+966501234567",
-      contactSubject: "استفسار عن الخدمات",
-      contactMessage: "مرحباً، أريد معلومات عن خدماتكم",
-      contactType: "general",
+      fullName: "أحمد حسن",
+      phoneNumber: "+966501234567",
+      carType: "سيدان",
+      carModel: "2023",
+      additionalNotes: "أريد حماية كاملة للسيارة مع طلاء خاص",
     };
     const contact = await axios.post(`${BASE_URL}/contact`, contactData);
     console.log("✅ Contact Form:", contact.data);

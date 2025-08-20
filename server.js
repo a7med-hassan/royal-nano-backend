@@ -4,44 +4,21 @@ const mongoose = require("mongoose");
 const app = express();
 
 // MongoDB Connection
-// Updated with new password: ahmed123 (no special characters)
-const uri =
-  process.env.MONGO_URI ||
-  "mongodb+srv://admin:ahmed123@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan";
-
-// Connect to MongoDB with better error handling
 mongoose
-  .connect(uri, {
-    serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
-    socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
   })
-  .then(() => {
-    console.log("✅ Connected to MongoDB Atlas");
-    console.log("📊 Database: royalNano");
-    console.log("🌐 Cluster: ryoalnan");
-  })
-  .catch((err) => {
-    console.error("❌ MongoDB connection error:", err.message);
-    console.log(
-      "💡 Make sure your MongoDB Atlas cluster is running and accessible"
-    );
-    console.log(
-      "💡 Check if your IP is whitelisted in MongoDB Atlas Network Access"
-    );
-  });
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch((err) => console.error("❌ MongoDB connection error:", err));
 
-// Contact Form Schema - للتواصل العام مع الشركة
+// Contact Form Schema - نموذج التواصل لخدمات حماية السيارة
 const contactSchema = new mongoose.Schema({
-  contactName: { type: String, required: true }, // اسم صاحب الاستفسار
-  contactEmail: { type: String, required: true }, // البريد الإلكتروني
-  contactPhone: { type: String, required: false }, // رقم الهاتف (اختياري)
-  contactSubject: { type: String, required: true }, // موضوع الاستفسار
-  contactMessage: { type: String, required: true }, // الرسالة
-  contactType: {
-    type: String,
-    enum: ["general", "support", "partnership", "other"],
-    default: "general",
-  }, // نوع الاستفسار
+  fullName: { type: String, required: true }, // الاسم الكامل *
+  phoneNumber: { type: String, required: true }, // رقم الهاتف *
+  carType: { type: String, required: true }, // نوع السيارة *
+  carModel: { type: String, required: true }, // موديل السيارة *
+  additionalNotes: { type: String, required: false }, // ملاحظات إضافية
   createdAt: { type: Date, default: Date.now },
 });
 
@@ -81,7 +58,7 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// Contact form - POST endpoint - للتواصل العام والاستفسارات
+// Contact form - POST endpoint - نموذج طلب خدمة حماية السيارة
 app.post("/api/contact", async (req, res) => {
   try {
     // Check MongoDB connection
@@ -92,35 +69,29 @@ app.post("/api/contact", async (req, res) => {
       });
     }
 
-    const {
-      contactName,
-      contactEmail,
-      contactPhone,
-      contactSubject,
-      contactMessage,
-      contactType,
-    } = req.body;
+    const { fullName, phoneNumber, carType, carModel, additionalNotes } =
+      req.body;
 
-    if (!contactName || !contactEmail || !contactSubject || !contactMessage) {
+    if (!fullName || !phoneNumber || !carType || !carModel) {
       return res.status(400).json({
         success: false,
-        message: "Name, email, subject, and message are required",
+        message:
+          "Full name, phone number, car type, and car model are required",
       });
     }
 
     const contact = new Contact({
-      contactName,
-      contactEmail,
-      contactPhone,
-      contactSubject,
-      contactMessage,
-      contactType,
+      fullName,
+      phoneNumber,
+      carType,
+      carModel,
+      additionalNotes,
     });
     await contact.save();
 
     res.status(201).json({
       success: true,
-      message: "Contact form submitted successfully!",
+      message: "Car protection service request submitted successfully!",
       data: contact,
     });
   } catch (error) {
@@ -133,7 +104,7 @@ app.post("/api/contact", async (req, res) => {
   }
 });
 
-// Contact form - GET endpoint - استرجاع رسائل التواصل والاستفسارات
+// Contact form - GET endpoint - استرجاع طلبات خدمات حماية السيارة
 app.get("/api/contact", async (req, res) => {
   try {
     // Check MongoDB connection
@@ -246,7 +217,9 @@ const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📱 Health check: http://localhost:${PORT}/api/health`);
-  console.log(`📝 Contact form: http://localhost:${PORT}/api/contact`);
+  console.log(
+    `🚗 Car protection service: http://localhost:${PORT}/api/contact`
+  );
   console.log(`🤝 Join form: http://localhost:${PORT}/api/join`);
 
   // Wait a bit for MongoDB connection to establish

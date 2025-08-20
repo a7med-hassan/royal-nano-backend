@@ -4,7 +4,7 @@ Backend API for Royal Nano Angular frontend with MongoDB Atlas integration and V
 
 ## ✨ Features
 
-- **Contact Form API** - للتواصل العام والاستفسارات
+- **Car Protection Service API** - نموذج طلب خدمة حماية السيارة
 - **Join Form API** - نموذج التقديم للوظائف
 - **MongoDB Atlas Integration** - تخزين البيانات في قاعدة بيانات MongoDB
 - **Health Check Endpoint** - فحص حالة الخادم وقاعدة البيانات
@@ -13,16 +13,15 @@ Backend API for Royal Nano Angular frontend with MongoDB Atlas integration and V
 
 ## 🗄️ Database Schemas
 
-### Contact Form Schema (نموذج التواصل)
+### Car Protection Service Schema (نموذج خدمة حماية السيارة)
 
 ```javascript
 {
-  contactName: String,        // اسم صاحب الاستفسار *
-  contactEmail: String,       // البريد الإلكتروني *
-  contactPhone: String,       // رقم الهاتف (اختياري)
-  contactSubject: String,     // موضوع الاستفسار *
-  contactMessage: String,     // الرسالة *
-  contactType: String,        // نوع الاستفسار (general, support, partnership, other)
+  fullName: String,           // الاسم الكامل *
+  phoneNumber: String,        // رقم الهاتف *
+  carType: String,            // نوع السيارة *
+  carModel: String,           // موديل السيارة *
+  additionalNotes: String,    // ملاحظات إضافية (اختياري)
   createdAt: Date            // تاريخ الإنشاء
 }
 ```
@@ -68,19 +67,19 @@ GET /api/health
 - `"connected"` - متصل (readyState === 1)
 - `"disconnected"` - غير متصل (readyState === 0, 2, 3)
 
-### Contact Form
+### Car Protection Service
 
 ```
 POST /api/contact
 ```
 
-**Required Fields:** `contactName`, `contactEmail`, `contactSubject`, `contactMessage`
+**Required Fields:** `fullName`, `phoneNumber`, `carType`, `carModel`
 
 ```
 GET /api/contact
 ```
 
-**Returns:** جميع رسائل التواصل مرتبة حسب التاريخ
+**Returns:** جميع طلبات خدمات حماية السيارة مرتبة حسب التاريخ
 
 ### Join Form (Job Applications)
 
@@ -151,10 +150,10 @@ npm test
 # Health Check
 curl http://localhost:3000/api/health
 
-# Submit Contact Form
+# Submit Car Protection Service Request
 curl -X POST http://localhost:3000/api/contact \
   -H "Content-Type: application/json" \
-  -d '{"contactName":"أحمد حسن","contactEmail":"ahmed@example.com","contactSubject":"استفسار","contactMessage":"مرحباً"}'
+  -d '{"fullName":"أحمد حسن","phoneNumber":"+966501234567","carType":"سيدان","carModel":"2023","additionalNotes":"أريد حماية كاملة للسيارة"}'
 
 # Submit Join Form
 curl -X POST http://localhost:3000/api/join \
@@ -185,7 +184,7 @@ curl -X POST http://localhost:3000/api/join \
 ## 📊 Current Status
 
 - ✅ **MongoDB Atlas**: متصل ويعمل
-- ✅ **Contact Form**: يعمل مع النموذج الجديد
+- ✅ **Car Protection Service**: يعمل مع النموذج الجديد
 - ✅ **Join Form**: يعمل مع النموذج الجديد
 - ✅ **Health Check**: يعرض حالة MongoDB بدقة
 - ✅ **API Endpoints**: جميع النقاط تعمل
@@ -225,10 +224,11 @@ pkill node
 ## 🌟 Key Improvements
 
 1. **MongoDB Status Tracking**: استخدام `mongoose.connection.readyState` للحصول على الحالة الفعلية
-2. **Enhanced Schemas**: نماذج منفصلة وواضحة للتواصل والتوظيف
-3. **Better Error Handling**: معالجة أفضل للأخطاء وحالة الاتصال
-4. **Comprehensive Testing**: اختبار شامل لجميع النقاط
-5. **Production Ready**: جاهز للنشر على Vercel
+2. **Car Protection Service Schema**: نموذج مخصص لخدمات حماية السيارة
+3. **Enhanced Join Schema**: نموذج واضح للتوظيف
+4. **Better Error Handling**: معالجة أفضل للأخطاء وحالة الاتصال
+5. **Comprehensive Testing**: اختبار شامل لجميع النقاط
+6. **Production Ready**: جاهز للنشر على Vercel
 
 ## 📞 Support
 
