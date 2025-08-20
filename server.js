@@ -9,6 +9,9 @@ const uri =
   process.env.MONGO_URI ||
   "mongodb+srv://admin:ahmed123@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan";
 
+// Track MongoDB connection status
+let mongoConnected = false;
+
 // Connect to MongoDB with better error handling
 mongoose
   .connect(uri, {
@@ -19,6 +22,7 @@ mongoose
     console.log("✅ Connected to MongoDB Atlas");
     console.log("📊 Database: royalNano");
     console.log("🌐 Cluster: ryoalnan");
+    mongoConnected = true;
   })
   .catch((err) => {
     console.error("❌ MongoDB connection error:", err.message);
@@ -28,7 +32,24 @@ mongoose
     console.log(
       "💡 Check if your IP is whitelisted in MongoDB Atlas Network Access"
     );
+    mongoConnected = false;
   });
+
+// Monitor MongoDB connection events
+mongoose.connection.on("connected", () => {
+  console.log("🔄 MongoDB connection established");
+  mongoConnected = true;
+});
+
+mongoose.connection.on("error", (err) => {
+  console.error("❌ MongoDB connection error:", err);
+  mongoConnected = false;
+});
+
+mongoose.connection.on("disconnected", () => {
+  console.log("🔌 MongoDB connection disconnected");
+  mongoConnected = false;
+});
 
 // Contact Form Schema - للتواصل العام مع الشركة
 const contactSchema = new mongoose.Schema({
@@ -71,8 +92,7 @@ app.use(express.json());
 
 // Health check
 app.get("/api/health", (req, res) => {
-  const mongoStatus =
-    mongoose.connection.readyState === 1 ? "connected" : "disconnected";
+  const mongoStatus = mongoConnected ? "connected" : "disconnected";
   res.json({
     success: true,
     message: "Server is running",
@@ -85,7 +105,7 @@ app.get("/api/health", (req, res) => {
 app.post("/api/contact", async (req, res) => {
   try {
     // Check MongoDB connection
-    if (mongoose.connection.readyState !== 1) {
+    if (!mongoConnected) {
       return res.status(503).json({
         success: false,
         message: "Database connection not available",
@@ -137,7 +157,7 @@ app.post("/api/contact", async (req, res) => {
 app.get("/api/contact", async (req, res) => {
   try {
     // Check MongoDB connection
-    if (mongoose.connection.readyState !== 1) {
+    if (!mongoConnected) {
       return res.status(503).json({
         success: false,
         message: "Database connection not available",
@@ -163,7 +183,7 @@ app.get("/api/contact", async (req, res) => {
 app.post("/api/join", async (req, res) => {
   try {
     // Check MongoDB connection
-    if (mongoose.connection.readyState !== 1) {
+    if (!mongoConnected) {
       return res.status(503).json({
         success: false,
         message: "Database connection not available",
@@ -219,7 +239,7 @@ app.post("/api/join", async (req, res) => {
 app.get("/api/join", async (req, res) => {
   try {
     // Check MongoDB connection
-    if (mongoose.connection.readyState !== 1) {
+    if (!mongoConnected) {
       return res.status(503).json({
         success: false,
         message: "Database connection not available",
@@ -249,9 +269,7 @@ app.listen(PORT, () => {
   console.log(`📝 Contact form: http://localhost:${PORT}/api/contact`);
   console.log(`🤝 Join form: http://localhost:${PORT}/api/join`);
   console.log(
-    `🗄️ MongoDB: ${
-      mongoose.connection.readyState === 1 ? "✅ Connected" : "❌ Disconnected"
-    }`
+    `🗄️ MongoDB: ${mongoConnected ? "✅ Connected" : "❌ Disconnected"}`
   );
 });
 
