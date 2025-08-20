@@ -1,210 +1,83 @@
-# Royal Nano Backend API
+# Royal Nano Backend
 
-Backend API مخصص لـ Angular frontend الخاص بـ Royal Nano، مبني باستخدام Node.js و Express.
+Backend API for Royal Nano Angular frontend with MongoDB Atlas integration.
 
-## 🚀 المميزات
+## Features
 
-- ✅ API endpoint للتواصل (`/api/contact`)
-- ✅ API endpoint للانضمام مع رفع ملف CV (`/api/join`)
-- ✅ معالجة الملفات باستخدام Multer
-- ✅ CORS مفعل للـ frontend
-- ✅ تحقق من صحة البيانات
-- ✅ معالجة الأخطاء
-- ✅ جاهز للنشر على Vercel
-- ✅ جاهز للنشر على GitHub
+- Contact form submission and storage
+- Join form submission and storage
+- MongoDB Atlas database integration
+- RESTful API endpoints
+- CORS enabled for frontend integration
 
-## 📋 المتطلبات
+## Setup
 
-- Node.js (v16 أو أحدث)
-- npm أو yarn
-
-## 🛠️ التثبيت والتشغيل
-
-### 1. استنساخ المشروع
-
-```bash
-git clone https://github.com/YOUR_USERNAME/royal-nano-backend.git
-cd royal-nano-backend
-```
-
-### 2. تثبيت المكتبات
-
+### 1. Install Dependencies
 ```bash
 npm install
 ```
 
-### 3. تشغيل السيرفر
+### 2. MongoDB Atlas Setup
+1. Create a MongoDB Atlas account at [mongodb.com](https://mongodb.com)
+2. Create a new cluster
+3. Create a database user with read/write permissions
+4. Get your connection string
+5. Add it to your environment variables
+
+### 3. Environment Variables
+Create a `.env` file in the root directory:
+```bash
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/royal-nano?retryWrites=true&w=majority
+PORT=3000
+```
+
+### 4. Vercel Deployment
+1. Set the `MONGODB_URI` environment variable in your Vercel project settings
+2. Deploy your project
+
+## API Endpoints
+
+### Contact Form
+- **POST** `/api/contact` - Submit contact form
+  - Body: `{ "fullName": "string", "email": "string", "message": "string" }`
+- **GET** `/api/contact` - Retrieve all contact submissions
+
+### Join Form
+- **POST** `/api/join` - Submit join request
+  - Body: `{ "fullName": "string", "phoneNumber": "string", "carType": "string" }`
+- **GET** `/api/join` - Retrieve all join requests
+
+### Health Check
+- **GET** `/api/health` - Server health status
+
+## Development
 
 ```bash
-# للتطوير (مع nodemon)
+# Start development server
 npm run dev
 
-# للإنتاج
+# Start production server
 npm start
 ```
 
-السيرفر سيعمل على المنفذ 5000 (أو المنفذ المحدد في متغير البيئة PORT).
+## Database Schema
 
-## 🌐 API Endpoints
-
-### 1. Contact Form - `/api/contact`
-
-**POST** `/api/contact`
-
-**Body:**
-
-```json
+### Contact Collection
+```javascript
 {
-  "fullName": "أحمد حسن",
-  "phoneNumber": "+966501234567",
-  "carType": "سيدان",
-  "carModel": "2023",
-  "notes": "ملاحظات إضافية"
+  fullName: String (required),
+  email: String (required),
+  message: String (required),
+  createdAt: Date (auto-generated)
 }
 ```
 
-**Response:**
-
-```json
+### Join Collection
+```javascript
 {
-  "success": true,
-  "message": "Contact form received"
+  fullName: String (required),
+  phoneNumber: String (required),
+  carType: String (required),
+  createdAt: Date (auto-generated)
 }
 ```
-
-### 2. Join Form - `/api/join`
-
-**POST** `/api/join`
-
-**Body (multipart/form-data):**
-
-- `fullName`: الاسم الكامل
-- `phoneNumber`: رقم الهاتف
-- `email`: البريد الإلكتروني
-- `position`: المنصب المطلوب
-- `experience`: الخبرة (اختياري)
-- `message`: رسالة (اختيارية)
-- `cv`: ملف CV (PDF, DOC, DOCX)
-
-**Response:**
-
-```json
-{
-  "success": true,
-  "message": "Join form received",
-  "cv": "cv-1234567890-123456789.pdf"
-}
-```
-
-### 3. Health Check - `/api/health`
-
-**GET** `/api/health`
-
-**Response:**
-
-```json
-{
-  "success": true,
-  "message": "Server is running",
-  "timestamp": "2024-01-01T12:00:00.000Z"
-}
-```
-
-## 📁 متطلبات الملفات
-
-- **CV Files**: PDF, DOC, DOCX فقط
-- **حجم الملف**: أقصى 5MB
-- **المجلد**: يتم حفظ الملفات في `uploads/`
-
-## 🔧 متغيرات البيئة
-
-- `PORT`: منفذ السيرفر (افتراضي: 5000)
-
-## 🚀 النشر
-
-### النشر على Vercel
-
-المشروع جاهز للنشر على Vercel مع ملف `vercel.json` المكون مسبقاً.
-
-```bash
-# تثبيت Vercel CLI
-npm i -g vercel
-
-# النشر
-vercel
-```
-
-### النشر على GitHub
-
-```bash
-# إضافة remote origin
-git remote add origin https://github.com/YOUR_USERNAME/royal-nano-backend.git
-
-# رفع الكود
-git push -u origin master
-```
-
-## 🔗 ربط مع Angular Frontend
-
-### في Angular Service:
-
-```typescript
-// للتطوير
-private apiUrl = 'http://localhost:5000/api';
-
-// للإنتاج (Vercel)
-private apiUrl = 'https://your-vercel-app.vercel.app/api';
-```
-
-## 📂 هيكل المشروع
-
-```
-royal-nano-backend/
-├── server.js          # الملف الرئيسي للسيرفر
-├── package.json       # تبعيات المشروع
-├── vercel.json        # إعدادات Vercel
-├── .gitignore         # ملفات Git
-├── README.md          # هذا الملف
-└── uploads/           # مجلد حفظ الملفات (يتم إنشاؤه تلقائياً)
-```
-
-## 🛡️ الأمان
-
-- CORS مفعل للـ frontend
-- تحقق من نوع وحجم الملفات
-- معالجة الأخطاء
-- تحقق من صحة البيانات المدخلة
-
-## 📝 التطوير
-
-### تشغيل في وضع التطوير
-
-```bash
-npm run dev
-```
-
-### تشغيل في وضع الإنتاج
-
-```bash
-npm start
-```
-
-## 🤝 المساهمة
-
-1. Fork المشروع
-2. إنشاء branch جديد (`git checkout -b feature/AmazingFeature`)
-3. Commit التغييرات (`git commit -m 'Add some AmazingFeature'`)
-4. Push إلى Branch (`git push origin feature/AmazingFeature`)
-5. فتح Pull Request
-
-## 📄 الترخيص
-
-هذا المشروع مرخص تحت رخصة MIT - انظر ملف [LICENSE](LICENSE) للتفاصيل.
-
-## 📞 الدعم
-
-لأي استفسارات أو مشاكل، يرجى التواصل مع فريق التطوير أو فتح issue على GitHub.
-
----
-
-⭐ إذا أعجبك المشروع، لا تنسى إعطاءه نجمة على GitHub!

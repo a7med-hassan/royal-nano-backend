@@ -1,42 +1,17 @@
 const express = require("express");
 const cors = require("cors");
-const mongoose = require("mongoose");
 const app = express();
-
-// MongoDB Connection
-const MONGODB_URI =
-  process.env.MONGODB_URI || "mongodb://localhost:27017/royal-nano";
-
-mongoose
-  .connect(MONGODB_URI)
-  .then(() => console.log("Connected to MongoDB Atlas"))
-  .catch((err) => console.error("MongoDB connection error:", err));
-
-// Contact Form Schema
-const contactSchema = new mongoose.Schema({
-  fullName: { type: String, required: true },
-  email: { type: String, required: true },
-  message: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now },
-});
-
-// Join Form Schema
-const joinSchema = new mongoose.Schema({
-  fullName: { type: String, required: true },
-  phoneNumber: { type: String, required: true },
-  carType: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now },
-});
-
-const Contact = mongoose.model("Contact", contactSchema);
-const Join = mongoose.model("Join", joinSchema);
 
 app.use(cors());
 app.use(express.json());
 
+// In-memory storage for local testing
+let contacts = [];
+let joins = [];
+
 // Health check
 app.get("/api/health", (req, res) => {
-  res.json({ success: true, message: "Server is running" });
+  res.json({ success: true, message: "Server is running (Local Mode)" });
 });
 
 // Contact form - POST endpoint
@@ -51,8 +26,15 @@ app.post("/api/contact", async (req, res) => {
       });
     }
 
-    const contact = new Contact({ fullName, email, message });
-    await contact.save();
+    const contact = {
+      id: Date.now(),
+      fullName,
+      email,
+      message,
+      createdAt: new Date(),
+    };
+
+    contacts.push(contact);
 
     res.status(201).json({
       success: true,
@@ -71,10 +53,9 @@ app.post("/api/contact", async (req, res) => {
 // Contact form - GET endpoint (to retrieve contacts)
 app.get("/api/contact", async (req, res) => {
   try {
-    const contacts = await Contact.find().sort({ createdAt: -1 });
     res.json({
       success: true,
-      data: contacts,
+      data: contacts.sort((a, b) => b.createdAt - a.createdAt),
     });
   } catch (error) {
     console.error("Get contacts error:", error);
@@ -97,8 +78,15 @@ app.post("/api/join", async (req, res) => {
       });
     }
 
-    const join = new Join({ fullName, phoneNumber, carType });
-    await join.save();
+    const join = {
+      id: Date.now(),
+      fullName,
+      phoneNumber,
+      carType,
+      createdAt: new Date(),
+    };
+
+    joins.push(join);
 
     res.status(201).json({
       success: true,
@@ -117,10 +105,9 @@ app.post("/api/join", async (req, res) => {
 // Join form - GET endpoint (to retrieve join requests)
 app.get("/api/join", async (req, res) => {
   try {
-    const joins = await Join.find().sort({ createdAt: -1 });
     res.json({
       success: true,
-      data: joins,
+      data: joins.sort((a, b) => b.createdAt - a.createdAt),
     });
   } catch (error) {
     console.error("Get joins error:", error);
@@ -134,11 +121,11 @@ app.get("/api/join", async (req, res) => {
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`🚀 Local Server running on port ${PORT}`);
   console.log(`📱 Health check: http://localhost:${PORT}/api/health`);
   console.log(`📝 Contact form: http://localhost:${PORT}/api/contact`);
   console.log(`🤝 Join form: http://localhost:${PORT}/api/join`);
+  console.log(`💾 Using in-memory storage (no MongoDB required)`);
 });
 
-// Export for Vercel
 module.exports = app;
