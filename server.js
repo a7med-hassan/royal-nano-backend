@@ -4,13 +4,35 @@ const mongoose = require("mongoose");
 const app = express();
 
 // MongoDB Connection
-const MONGODB_URI =
-  process.env.MONGODB_URI || "mongodb://localhost:27017/royal-nano";
+// Note: Special characters in password are encoded:
+// $ becomes %24, # becomes %23
+const uri =
+  process.env.MONGO_URI ||
+  "mongodb+srv://admin:royalnano%2412%23@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan";
 
+// Connect to MongoDB with better error handling
 mongoose
-  .connect(MONGODB_URI)
-  .then(() => console.log("Connected to MongoDB Atlas"))
-  .catch((err) => console.error("MongoDB connection error:", err));
+  .connect(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+    socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+  })
+  .then(() => {
+    console.log("✅ Connected to MongoDB Atlas");
+    console.log("📊 Database: royalNano");
+    console.log("🌐 Cluster: ryoalnan");
+  })
+  .catch((err) => {
+    console.error("❌ MongoDB connection error:", err.message);
+    console.log(
+      "💡 Make sure your MongoDB Atlas cluster is running and accessible"
+    );
+    console.log(
+      "💡 Check if your IP is whitelisted in MongoDB Atlas Network Access"
+    );
+    console.log("💡 Check if the password encoding is correct");
+  });
 
 // Contact Form Schema
 const contactSchema = new mongoose.Schema({
@@ -36,12 +58,27 @@ app.use(express.json());
 
 // Health check
 app.get("/api/health", (req, res) => {
-  res.json({ success: true, message: "Server is running" });
+  const mongoStatus =
+    mongoose.connection.readyState === 1 ? "connected" : "disconnected";
+  res.json({
+    success: true,
+    message: "Server is running",
+    mongodb: mongoStatus,
+    timestamp: new Date().toISOString(),
+  });
 });
 
 // Contact form - POST endpoint
 app.post("/api/contact", async (req, res) => {
   try {
+    // Check MongoDB connection
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        success: false,
+        message: "Database connection not available",
+      });
+    }
+
     const { fullName, email, message } = req.body;
 
     if (!fullName || !email || !message) {
@@ -64,6 +101,7 @@ app.post("/api/contact", async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Internal server error",
+      error: error.message,
     });
   }
 });
@@ -71,6 +109,14 @@ app.post("/api/contact", async (req, res) => {
 // Contact form - GET endpoint (to retrieve contacts)
 app.get("/api/contact", async (req, res) => {
   try {
+    // Check MongoDB connection
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        success: false,
+        message: "Database connection not available",
+      });
+    }
+
     const contacts = await Contact.find().sort({ createdAt: -1 });
     res.json({
       success: true,
@@ -81,6 +127,7 @@ app.get("/api/contact", async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Internal server error",
+      error: error.message,
     });
   }
 });
@@ -88,6 +135,14 @@ app.get("/api/contact", async (req, res) => {
 // Join form - POST endpoint
 app.post("/api/join", async (req, res) => {
   try {
+    // Check MongoDB connection
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        success: false,
+        message: "Database connection not available",
+      });
+    }
+
     const { fullName, phoneNumber, carType } = req.body;
 
     if (!fullName || !phoneNumber || !carType) {
@@ -110,6 +165,7 @@ app.post("/api/join", async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Internal server error",
+      error: error.message,
     });
   }
 });
@@ -117,6 +173,14 @@ app.post("/api/join", async (req, res) => {
 // Join form - GET endpoint (to retrieve join requests)
 app.get("/api/join", async (req, res) => {
   try {
+    // Check MongoDB connection
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        success: false,
+        message: "Database connection not available",
+      });
+    }
+
     const joins = await Join.find().sort({ createdAt: -1 });
     res.json({
       success: true,
@@ -127,6 +191,7 @@ app.get("/api/join", async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Internal server error",
+      error: error.message,
     });
   }
 });
@@ -138,6 +203,11 @@ app.listen(PORT, () => {
   console.log(`📱 Health check: http://localhost:${PORT}/api/health`);
   console.log(`📝 Contact form: http://localhost:${PORT}/api/contact`);
   console.log(`🤝 Join form: http://localhost:${PORT}/api/join`);
+  console.log(
+    `🗄️ MongoDB: ${
+      mongoose.connection.readyState === 1 ? "✅ Connected" : "❌ Disconnected"
+    }`
+  );
 });
 
 // Export for Vercel
