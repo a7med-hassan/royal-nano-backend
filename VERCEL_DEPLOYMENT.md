@@ -9,12 +9,10 @@ Your MongoDB Atlas is already configured and working with:
 - **Cluster**: ryoalnan
 - **Database**: royalNano
 - **Username**: admin
-- **Connection String**: Working with encoded password
+- **Password**: ahmed123 (updated - no special characters)
+- **Connection String**: Working with new password
 
-**Note**: The password `royalnano$12#` has been encoded to handle special characters:
-
-- `$` → `%24`
-- `#` → `%23`
+**Note**: Password has been updated to `ahmed123` (no special characters) for better compatibility.
 
 ### 2. Vercel Deployment
 
@@ -35,10 +33,11 @@ Your MongoDB Atlas is already configured and working with:
    ```bash
    vercel env add MONGO_URI
    # Paste your MongoDB connection string when prompted:
-   # mongodb+srv://admin:royalnano%2412%23@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan
+   # mongodb+srv://admin:ahmed123@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan
    ```
 
 4. **Deploy**
+
    ```bash
    vercel --prod
    ```
@@ -49,7 +48,7 @@ Your MongoDB Atlas is already configured and working with:
 2. Click "Settings" → "Environment Variables"
 3. Add:
    - **Name**: `MONGO_URI`
-   - **Value**: `mongodb+srv://admin:royalnano%2412%23@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan`
+   - **Value**: `mongodb+srv://admin:ahmed123@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan`
    - **Environment**: Production, Preview, Development
 
 ## 📱 Frontend Integration
@@ -151,6 +150,7 @@ export class ApiService {
    ```
 
 3. **Test Join Form**
+
    ```bash
    curl -X POST https://your-app-name.vercel.app/api/join \
      -H "Content-Type: application/json" \
@@ -171,9 +171,10 @@ export class ApiService {
    - Check your connection string in Vercel environment variables
    - Ensure your IP is whitelisted in MongoDB Atlas
    - Verify username/password are correct
-   - **Important**: Use the encoded password (`%24` for `$`, `%23` for `#`)
+   - **Note**: Password is now `ahmed123` (no special characters)
 
 3. **CORS Issues**
+
    - CORS is already enabled in the backend
    - Make sure your frontend URL is correct
 
@@ -199,7 +200,7 @@ export class ApiService {
 
 ## ✅ Current Status
 
-- **MongoDB Atlas**: ✅ Connected and working
+- **MongoDB Atlas**: ✅ Connected and working with new password
 - **API Endpoints**: ✅ All working (POST and GET)
 - **Data Storage**: ✅ Contact and Join forms storing successfully
 - **Local Testing**: ✅ Working perfectly

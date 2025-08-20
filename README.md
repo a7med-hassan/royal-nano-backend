@@ -27,21 +27,19 @@ Your MongoDB Atlas is already set up and working:
 - **Cluster**: ryoalnan
 - **Database**: royalNano
 - **Username**: admin
-- **Connection**: Working with encoded password
+- **Password**: ahmed123 (updated - no special characters)
+- **Connection**: Working with new password
 
 ### 3. Environment Variables
 
 Create a `.env` file in the root directory:
 
 ```bash
-MONGO_URI=mongodb+srv://admin:royalnano%2412%23@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan
+MONGO_URI=mongodb+srv://admin:ahmed123@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan
 PORT=3000
 ```
 
-**Note**: Password encoding handles special characters:
-
-- `$` → `%24`
-- `#` → `%23`
+**Note**: Password has been updated to `ahmed123` without special characters for better compatibility.
 
 ### 4. Run the Server
 
@@ -113,7 +111,7 @@ npm test            # Run API tests
 
 ```bash
 vercel env add MONGO_URI
-# Use: mongodb+srv://admin:royalnano%2412%23@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan
+# Use: mongodb+srv://admin:ahmed123@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan
 ```
 
 ### 2. Deploy
@@ -176,7 +174,7 @@ export class ApiService {
 
 ### Common Issues
 
-1. **MongoDB Connection Error**: Check password encoding and IP whitelist
+1. **MongoDB Connection Error**: Check password and IP whitelist
 2. **"Cannot GET /api/contact"**: Use POST for form submission, GET for retrieval
 3. **CORS Issues**: CORS is already enabled
 
@@ -184,11 +182,11 @@ export class ApiService {
 
 1. Ensure your IP is whitelisted in Network Access
 2. Verify database user has correct permissions
-3. Use encoded password for special characters
+3. Password is now `ahmed123` (no special characters)
 
 ## 🎉 Current Status
 
-- **MongoDB Atlas**: ✅ Connected and working
+- **MongoDB Atlas**: ✅ Connected and working with new password
 - **API Endpoints**: ✅ All working (POST and GET)
 - **Data Storage**: ✅ Contact and Join forms storing successfully
 - **Local Testing**: ✅ Working perfectly

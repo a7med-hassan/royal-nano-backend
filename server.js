@@ -4,17 +4,14 @@ const mongoose = require("mongoose");
 const app = express();
 
 // MongoDB Connection
-// Note: Special characters in password are encoded:
-// $ becomes %24, # becomes %23
+// Updated with new password: ahmed123 (no special characters)
 const uri =
   process.env.MONGO_URI ||
-  "mongodb+srv://admin:royalnano%2412%23@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan";
+  "mongodb+srv://admin:ahmed123@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan";
 
 // Connect to MongoDB with better error handling
 mongoose
   .connect(uri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
     serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
     socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
   })
@@ -31,7 +28,6 @@ mongoose
     console.log(
       "💡 Check if your IP is whitelisted in MongoDB Atlas Network Access"
     );
-    console.log("💡 Check if the password encoding is correct");
   });
 
 // Contact Form Schema
