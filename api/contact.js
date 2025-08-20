@@ -1,7 +1,7 @@
-import dbConnect from "../lib/dbConnect";
-import Contact from "../models/Contact";
+const dbConnect = require("../lib/dbConnect");
+const Contact = require("../models/Contact");
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   await dbConnect();
 
   if (req.method === "POST") {
@@ -66,4 +66,4 @@ export default async function handler(req, res) {
       message: "Method not allowed. Use POST to submit or GET to retrieve.",
     });
   }
-}
+};

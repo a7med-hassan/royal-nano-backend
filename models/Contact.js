@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const ContactSchema = new mongoose.Schema(
   {
@@ -11,5 +11,5 @@ const ContactSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.models.Contact ||
-  mongoose.model("Contact", ContactSchema);
+module.exports =
+  mongoose.models.Contact || mongoose.model("Contact", ContactSchema);
