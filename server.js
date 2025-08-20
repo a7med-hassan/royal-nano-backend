@@ -4,13 +4,26 @@ const mongoose = require("mongoose");
 const app = express();
 
 // MongoDB Connection
+const mongoURI = process.env.MONGO_URI;
+
 mongoose
-  .connect(process.env.MONGO_URI, {
+  .connect(mongoURI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
+
+// Health check example
+app.get("/api/health", (req, res) => {
+  res.json({
+    success: true,
+    message: "Server is running",
+    mongodb:
+      mongoose.connection.readyState === 1 ? "connected" : "disconnected",
+    timestamp: new Date().toISOString(),
+  });
+});
 
 // Contact Form Schema - نموذج التواصل لخدمات حماية السيارة
 const contactSchema = new mongoose.Schema({
@@ -45,18 +58,6 @@ const Join = mongoose.model("Join", joinSchema);
 
 app.use(cors());
 app.use(express.json());
-
-// Health check
-app.get("/api/health", (req, res) => {
-  const mongoStatus =
-    mongoose.connection.readyState === 1 ? "connected" : "disconnected";
-  res.json({
-    success: true,
-    message: "Server is running",
-    mongodb: mongoStatus,
-    timestamp: new Date().toISOString(),
-  });
-});
 
 // Contact form - POST endpoint - نموذج طلب خدمة حماية السيارة
 app.post("/api/contact", async (req, res) => {
