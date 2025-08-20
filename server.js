@@ -13,27 +13,51 @@ app.use(express.json());
 // MongoDB Connection with Caching for Serverless
 const mongoUri = process.env.MONGO_URI;
 
+// Validate MONGO_URI
+if (!mongoUri) {
+  console.error("❌ MONGO_URI environment variable is not set!");
+  console.error("Please set MONGO_URI in your Vercel environment variables");
+} else {
+  console.log("🔑 MONGO_URI found:", mongoUri.substring(0, 50) + "...");
+}
+
 // Global cached connection for Serverless
 let cached = global.mongoose;
 if (!cached) cached = global.mongoose = { conn: null, promise: null };
 
 async function connectToDatabase() {
   if (cached.conn) {
+    console.log("🔄 Using cached MongoDB connection");
     return cached.conn;
   }
 
   if (!cached.promise) {
+    console.log("🔌 Creating new MongoDB connection...");
+    const opts = {
+      bufferCommands: false,
+    };
+
     cached.promise = mongoose
-      .connect(mongoUri, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      })
+      .connect(mongoUri, opts)
       .then((mongoose) => {
+        console.log("✅ MongoDB connected successfully");
         return mongoose;
+      })
+      .catch((err) => {
+        console.error("❌ MongoDB connection failed:", err.message);
+        throw err;
       });
   }
-  cached.conn = await cached.promise;
-  return cached.conn;
+
+  try {
+    cached.conn = await cached.promise;
+    console.log("🔗 MongoDB connection established");
+    return cached.conn;
+  } catch (e) {
+    console.error("💥 Connection error:", e.message);
+    cached.promise = null;
+    throw e;
+  }
 }
 
 // Health check with database connection
@@ -45,6 +69,7 @@ app.get("/api/health", async (req, res) => {
       message: "Server is running",
       mongodb: "connected",
       timestamp: new Date().toISOString(),
+      connection: "cached",
     });
   } catch (err) {
     console.error("MongoDB connection error:", err);
@@ -53,6 +78,8 @@ app.get("/api/health", async (req, res) => {
       message: "Server is running",
       mongodb: "disconnected",
       timestamp: new Date().toISOString(),
+      error: err.message,
+      connection: "failed",
     });
   }
 });
