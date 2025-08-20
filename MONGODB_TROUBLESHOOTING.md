@@ -15,15 +15,15 @@
 
 ## ✅ الحل المطبق
 
-### تم تغيير كلمة المرور إلى `ahmed123`
+### تم تغيير كلمة المرور إلى `A7med2023A`
 
 **الكلمة القديمة**: `royalnano$12#` (مع رموز خاصة)
-**الكلمة الجديدة**: `ahmed123` (بدون رموز خاصة)
+**الكلمة الجديدة**: `A7med2023A` (محسنة للأمان)
 
 **Connection String الجديد**:
 
 ```
-mongodb+srv://admin:ahmed123@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan
+mongodb+srv://admin:A7med2023A@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan
 ```
 
 ## 🚀 النتيجة
@@ -43,7 +43,7 @@ mongodb+srv://admin:ahmed123@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=
 4. ابحث عن المستخدم `admin`
 5. اضغط على "Edit"
 6. اضغط على "Edit Password"
-7. أدخل كلمة المرور الجديدة: `ahmed123`
+7. أدخل كلمة المرور الجديدة: `A7med2023A`
 8. اضغط "Update User"
 
 ## 🧪 اختبار الاتصال
@@ -92,7 +92,7 @@ vercel env add MONGO_URI
 ### 2. القيمة المطلوبة
 
 ```
-mongodb+srv://admin:ahmed123@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan
+mongodb+srv://admin:A7med2023A@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan
 ```
 
 ## 🔒 أمان MongoDB Atlas

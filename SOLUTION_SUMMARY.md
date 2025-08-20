@@ -160,9 +160,9 @@ vercel --prod
 في Vercel Dashboard:
 
 - **Name**: `MONGO_URI`
-- **Value**: `mongodb+srv://admin:ahmed123@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan`
+- **Value**: `mongodb+srv://admin:A7med2023A@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan`
 
-**ملاحظة**: كلمة المرور الجديدة `ahmed123` بدون رموز خاصة.
+**ملاحظة**: كلمة المرور الجديدة `A7med2023A` محسنة للأمان.
 
 ## 🔧 اختبار الحل
 
@@ -245,7 +245,7 @@ export class ApiService {
 **Connection String النهائي**:
 
 ```
-mongodb+srv://admin:ahmed123@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan
+mongodb+srv://admin:A7med2023A@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan
 ```
 
 ## 🆘 الدعم
