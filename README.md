@@ -1,197 +1,239 @@
-# Royal Nano Backend
+# 🚀 Royal Nano Backend API
 
-Backend API for Royal Nano Angular frontend with MongoDB Atlas integration.
+Backend API for Royal Nano Angular frontend with MongoDB Atlas integration and Vercel deployment support.
 
-## 🎯 Features
+## ✨ Features
 
-- ✅ Contact form submission and storage in MongoDB Atlas
-- ✅ Join form submission and storage in MongoDB Atlas
-- ✅ MongoDB Atlas database integration (Cluster: ryoalnan)
-- ✅ RESTful API endpoints (POST and GET)
-- ✅ CORS enabled for frontend integration
-- ✅ Error handling and validation
-- ✅ Ready for Vercel deployment
+- **Contact Form API** - للتواصل العام والاستفسارات
+- **Join Form API** - نموذج التقديم للوظائف
+- **MongoDB Atlas Integration** - تخزين البيانات في قاعدة بيانات MongoDB
+- **Health Check Endpoint** - فحص حالة الخادم وقاعدة البيانات
+- **CORS Enabled** - دعم الواجهات الأمامية
+- **Vercel Ready** - جاهز للنشر على Vercel
 
-## 🚀 Quick Start
+## 🗄️ Database Schemas
 
-### 1. Install Dependencies
+### Contact Form Schema (نموذج التواصل)
 
-```bash
-npm install
+```javascript
+{
+  contactName: String,        // اسم صاحب الاستفسار *
+  contactEmail: String,       // البريد الإلكتروني *
+  contactPhone: String,       // رقم الهاتف (اختياري)
+  contactSubject: String,     // موضوع الاستفسار *
+  contactMessage: String,     // الرسالة *
+  contactType: String,        // نوع الاستفسار (general, support, partnership, other)
+  createdAt: Date            // تاريخ الإنشاء
+}
 ```
 
-### 2. MongoDB Atlas ✅ Already Configured
+### Join Form Schema (نموذج التوظيف)
 
-Your MongoDB Atlas is already set up and working:
-
-- **Cluster**: ryoalnan
-- **Database**: royalNano
-- **Username**: admin
-- **Password**: ahmed123 (updated - no special characters)
-- **Connection**: Working with new password
-
-### 3. Environment Variables
-
-Create a `.env` file in the root directory:
-
-```bash
-MONGO_URI=mongodb+srv://admin:ahmed123@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan
-PORT=3000
+```javascript
+{
+  fullName: String,           // الاسم الكامل *
+  phoneNumber: String,        // رقم الهاتف *
+  email: String,              // البريد الإلكتروني (اختياري)
+  jobPosition: String,        // الوظيفة المطلوبة *
+  experience: String,         // الخبرة السابقة (اختياري)
+  additionalMessage: String,  // رسالة إضافية (اختياري)
+  cvFileName: String,         // اسم ملف السيرة الذاتية (اختياري)
+  cvPath: String,             // مسار ملف السيرة الذاتية (اختياري)
+  status: String,             // حالة الطلب (pending, reviewed, accepted, rejected)
+  createdAt: Date            // تاريخ الإنشاء
+}
 ```
 
-**Note**: Password has been updated to `ahmed123` without special characters for better compatibility.
-
-### 4. Run the Server
-
-#### Production Mode (with MongoDB)
-
-```bash
-npm start        # Start production server
-npm run dev      # Start with nodemon
-```
-
-#### Local Testing Mode (no MongoDB required)
-
-```bash
-npm run local        # Start local server
-npm run local:dev    # Start with nodemon
-```
-
-### 5. Test API
-
-```bash
-npm test            # Run API tests
-```
-
-## 📱 API Endpoints
-
-### Contact Form
-
-- **POST** `/api/contact` - Submit contact form
-  - Body: `{ "fullName": "string", "email": "string", "message": "string" }`
-- **GET** `/api/contact` - Retrieve all contact submissions
-
-### Join Form
-
-- **POST** `/api/join` - Submit join request
-  - Body: `{ "fullName": "string", "phoneNumber": "string", "carType": "string" }`
-- **GET** `/api/join` - Retrieve all join requests
+## 🚀 API Endpoints
 
 ### Health Check
 
-- **GET** `/api/health` - Server health status with MongoDB connection info
+```
+GET /api/health
+```
 
-## 🗄️ Database Schema
+**Response:**
 
-### Contact Collection
-
-```javascript
+```json
 {
-  fullName: String (required),
-  email: String (required),
-  message: String (required),
-  createdAt: Date (auto-generated)
+  "success": true,
+  "message": "Server is running",
+  "mongodb": "connected",
+  "timestamp": "2025-08-20T11:40:50.217Z"
 }
 ```
 
-### Join Collection
+**MongoDB Status Values:**
 
-```javascript
-{
-  fullName: String (required),
-  phoneNumber: String (required),
-  carType: String (required),
-  createdAt: Date (auto-generated)
-}
+- `"connected"` - متصل (readyState === 1)
+- `"disconnected"` - غير متصل (readyState === 0, 2, 3)
+
+### Contact Form
+
+```
+POST /api/contact
 ```
 
-## 🌐 Vercel Deployment
+**Required Fields:** `contactName`, `contactEmail`, `contactSubject`, `contactMessage`
 
-### 1. Set Environment Variable
-
-```bash
-vercel env add MONGO_URI
-# Use: mongodb+srv://admin:ahmed123@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan
+```
+GET /api/contact
 ```
 
-### 2. Deploy
+**Returns:** جميع رسائل التواصل مرتبة حسب التاريخ
+
+### Join Form (Job Applications)
+
+```
+POST /api/join
+```
+
+**Required Fields:** `fullName`, `phoneNumber`, `jobPosition`
+
+```
+GET /api/join
+```
+
+**Returns:** جميع طلبات التوظيف مرتبة حسب التاريخ
+
+## 🛠️ Installation & Setup
+
+### Prerequisites
+
+- Node.js (v16 or higher)
+- MongoDB Atlas account
+- Vercel account (for deployment)
+
+### Local Development
 
 ```bash
-vercel --prod
+# Clone repository
+git clone <repository-url>
+cd Royal-nano-backend
+
+# Install dependencies
+npm install
+
+# Create .env file
+cp env.example .env
+
+# Update MongoDB connection string in .env
+MONGO_URI=mongodb+srv://admin:ahmed123@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan
+
+# Start development server
+npm run dev
+
+# Or start local server (no MongoDB required)
+npm run local
+```
+
+### Environment Variables
+
+```env
+# MongoDB Atlas Connection String
+MONGO_URI=mongodb+srv://admin:ahmed123@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan
+
+# Optional: Port for local development
+PORT=3000
 ```
 
 ## 🧪 Testing
 
-### Local Testing
+### Test All Endpoints
+
+```bash
+npm test
+```
+
+### Manual Testing
 
 ```bash
 # Health Check
 curl http://localhost:3000/api/health
 
-# Contact Form
+# Submit Contact Form
 curl -X POST http://localhost:3000/api/contact \
   -H "Content-Type: application/json" \
-  -d '{"fullName":"أحمد حسن","email":"test@example.com","message":"مرحباً"}'
+  -d '{"contactName":"أحمد حسن","contactEmail":"ahmed@example.com","contactSubject":"استفسار","contactMessage":"مرحباً"}'
 
-# Join Form
+# Submit Join Form
 curl -X POST http://localhost:3000/api/join \
   -H "Content-Type: application/json" \
-  -d '{"fullName":"محمد علي","phoneNumber":"+966501234567","carType":"سيدان"}'
+  -d '{"fullName":"محمد علي","phoneNumber":"+966501234567","jobPosition":"سائق"}'
 ```
 
-### Production Testing
+## 🚀 Deployment
 
-```bash
-# Replace with your Vercel URL
-curl https://your-app.vercel.app/api/health
-```
+### Vercel Deployment
 
-## 📱 Frontend Integration
+1. **Push code to GitHub**
+2. **Connect repository to Vercel**
+3. **Add environment variables:**
+   - `MONGO_URI`: MongoDB Atlas connection string
+4. **Deploy!**
 
-### Angular Service Example
+### Vercel Configuration
 
-```typescript
-export class ApiService {
-  private apiUrl = "https://your-app.vercel.app/api";
-
-  submitContact(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/contact`, data);
-  }
-
-  submitJoin(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/join`, data);
-  }
+```json
+{
+  "version": 2,
+  "builds": [{ "src": "server.js", "use": "@vercel/node" }],
+  "routes": [{ "src": "/(.*)", "dest": "server.js" }]
 }
 ```
 
-## 📚 Documentation
+## 📊 Current Status
 
-- **`VERCEL_DEPLOYMENT.md`** - Detailed deployment guide
-- **`SOLUTION_SUMMARY.md`** - Complete solution overview in Arabic
-- **`MONGODB_TROUBLESHOOTING.md`** - MongoDB connection troubleshooting
+- ✅ **MongoDB Atlas**: متصل ويعمل
+- ✅ **Contact Form**: يعمل مع النموذج الجديد
+- ✅ **Join Form**: يعمل مع النموذج الجديد
+- ✅ **Health Check**: يعرض حالة MongoDB بدقة
+- ✅ **API Endpoints**: جميع النقاط تعمل
+- ✅ **Data Storage**: البيانات تُخزن في قاعدة البيانات
+- ✅ **Ready for Vercel**: جاهز للنشر
 
 ## 🔧 Troubleshooting
 
-### Common Issues
+### MongoDB Connection Issues
 
-1. **MongoDB Connection Error**: Check password and IP whitelist
-2. **"Cannot GET /api/contact"**: Use POST for form submission, GET for retrieval
-3. **CORS Issues**: CORS is already enabled
+- تأكد من أن MongoDB Atlas cluster يعمل
+- تحقق من أن IP address مسموح به في Network Access
+- تأكد من صحة connection string
 
-### MongoDB Atlas Setup
+### Port Already in Use
 
-1. Ensure your IP is whitelisted in Network Access
-2. Verify database user has correct permissions
-3. Password is now `ahmed123` (no special characters)
+```bash
+# Windows
+Get-Process -Name "node" | Stop-Process -Force
 
-## 🎉 Current Status
+# Linux/Mac
+pkill node
+```
 
-- **MongoDB Atlas**: ✅ Connected and working with new password
-- **API Endpoints**: ✅ All working (POST and GET)
-- **Data Storage**: ✅ Contact and Join forms storing successfully
-- **Local Testing**: ✅ Working perfectly
-- **Ready for Vercel**: ✅ All configurations complete
+## 📝 Scripts
 
-## 📄 License
+```json
+{
+  "start": "node server.js", // Production server
+  "dev": "nodemon server.js", // Development server with auto-reload
+  "local": "node server-local.js", // Local server (no MongoDB)
+  "local:dev": "nodemon server-local.js", // Local development
+  "test": "node test-api.js" // Test all endpoints
+}
+```
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## 🌟 Key Improvements
+
+1. **MongoDB Status Tracking**: استخدام `mongoose.connection.readyState` للحصول على الحالة الفعلية
+2. **Enhanced Schemas**: نماذج منفصلة وواضحة للتواصل والتوظيف
+3. **Better Error Handling**: معالجة أفضل للأخطاء وحالة الاتصال
+4. **Comprehensive Testing**: اختبار شامل لجميع النقاط
+5. **Production Ready**: جاهز للنشر على Vercel
+
+## 📞 Support
+
+For support or questions, please contact the development team.
+
+---
+
+**Built with ❤️ for Royal Nano**
