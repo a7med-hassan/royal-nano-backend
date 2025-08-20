@@ -117,7 +117,7 @@ npm install
 cp env.example .env
 
 # Update MongoDB connection string in .env
-MONGO_URI=mongodb+srv://admin:A7med2023A@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan
+MONGO_URI=mongodb+srv://test:200111@ryoalnan.ev2z8cp.mongodb.net/?retryWrites=true&w=majority&appName=ryoalnan
 
 # Start development server
 npm run dev
@@ -130,7 +130,7 @@ npm run local
 
 ```env
 # MongoDB Atlas Connection String
-MONGO_URI=mongodb+srv://admin:A7med2023A@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan
+MONGO_URI=mongodb+srv://test:200111@ryoalnan.ev2z8cp.mongodb.net/?retryWrites=true&w=majority&appName=ryoalnan
 
 # Optional: Port for local development
 PORT=3000

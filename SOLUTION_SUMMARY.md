@@ -28,10 +28,11 @@
 - **Cluster**: ryoalnan
 - **Database**: royalNano
 - **Username**: admin
-- **Password**: ahmed123 (محدث - بدون رموز خاصة)
-- **Connection String**: يعمل مع كلمة المرور الجديدة
+- **Username**: test
+- **Password**: 200111 (محدث)
+- **Connection String**: يعمل مع البيانات الجديدة
 
-**ملاحظة مهمة**: تم تحديث كلمة المرور إلى `ahmed123` بدون رموز خاصة لحل مشاكل الاتصال.
+**ملاحظة مهمة**: تم تحديث البيانات إلى `test:200111` لحل مشاكل الاتصال.
 
 ### 3. ملفات الحل
 
@@ -160,7 +161,7 @@ vercel --prod
 في Vercel Dashboard:
 
 - **Name**: `MONGO_URI`
-- **Value**: `mongodb+srv://admin:A7med2023A@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan`
+- **Value**: `mongodb+srv://test:200111@ryoalnan.ev2z8cp.mongodb.net/?retryWrites=true&w=majority&appName=ryoalnan`
 
 **ملاحظة**: كلمة المرور الجديدة `A7med2023A` محسنة للأمان.
 
@@ -245,7 +246,7 @@ export class ApiService {
 **Connection String النهائي**:
 
 ```
-mongodb+srv://admin:A7med2023A@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan
+mongodb+srv://test:200111@ryoalnan.ev2z8cp.mongodb.net/?retryWrites=true&w=majority&appName=ryoalnan
 ```
 
 ## 🆘 الدعم

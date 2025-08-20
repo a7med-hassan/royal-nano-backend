@@ -15,15 +15,16 @@
 
 ## ✅ الحل المطبق
 
-### تم تغيير كلمة المرور إلى `A7med2023A`
+### تم تغيير البيانات إلى `test:200111`
 
 **الكلمة القديمة**: `royalnano$12#` (مع رموز خاصة)
-**الكلمة الجديدة**: `A7med2023A` (محسنة للأمان)
+**الكلمة الجديدة**: `200111` (محسنة للأمان)
+**اسم المستخدم الجديد**: `test`
 
 **Connection String الجديد**:
 
 ```
-mongodb+srv://admin:A7med2023A@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan
+mongodb+srv://test:200111@ryoalnan.ev2z8cp.mongodb.net/?retryWrites=true&w=majority&appName=ryoalnan
 ```
 
 ## 🚀 النتيجة
@@ -43,7 +44,7 @@ mongodb+srv://admin:A7med2023A@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrite
 4. ابحث عن المستخدم `admin`
 5. اضغط على "Edit"
 6. اضغط على "Edit Password"
-7. أدخل كلمة المرور الجديدة: `A7med2023A`
+7. أدخل كلمة المرور الجديدة: `200111`
 8. اضغط "Update User"
 
 ## 🧪 اختبار الاتصال

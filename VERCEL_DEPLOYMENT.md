@@ -8,11 +8,11 @@ Your MongoDB Atlas is already configured and working with:
 
 - **Cluster**: ryoalnan
 - **Database**: royalNano
-- **Username**: admin
-- **Password**: A7med2023A (updated)
-- **Connection String**: Working with new password
+- **Username**: test
+- **Password**: 200111 (updated)
+- **Connection String**: Working with new credentials
 
-**Note**: Password has been updated to `A7med2023A` for better security.
+**Note**: Credentials have been updated to `test:200111` for better security.
 
 ### 2. Vercel Deployment
 
@@ -33,7 +33,7 @@ Your MongoDB Atlas is already configured and working with:
    ```bash
    vercel env add MONGO_URI
    # Paste your MongoDB connection string when prompted:
-   # mongodb+srv://admin:A7med2023A@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan
+   # mongodb+srv://test:200111@ryoalnan.ev2z8cp.mongodb.net/?retryWrites=true&w=majority&appName=ryoalnan
    ```
 
 4. **Deploy**
@@ -48,7 +48,7 @@ Your MongoDB Atlas is already configured and working with:
 2. Click "Settings" → "Environment Variables"
 3. Add:
    - **Name**: `MONGO_URI`
-   - **Value**: `mongodb+srv://admin:A7med2023A@ryoalnan.ev2z8cp.mongodb.net/royalNano?retryWrites=true&w=majority&appName=ryoalnan`
+   - **Value**: `mongodb+srv://test:200111@ryoalnan.ev2z8cp.mongodb.net/?retryWrites=true&w=majority&appName=ryoalnan`
    - **Environment**: Production, Preview, Development
 
 ## 📱 Frontend Integration
