@@ -263,14 +263,18 @@ app.get("/api/join", async (req, res) => {
 
 // Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📱 Health check: http://localhost:${PORT}/api/health`);
   console.log(`📝 Contact form: http://localhost:${PORT}/api/contact`);
   console.log(`🤝 Join form: http://localhost:${PORT}/api/join`);
-  console.log(
-    `🗄️ MongoDB: ${mongoConnected ? "✅ Connected" : "❌ Disconnected"}`
-  );
+
+  // Wait a bit for MongoDB connection to establish
+  setTimeout(() => {
+    console.log(
+      `🗄️ MongoDB: ${mongoConnected ? "✅ Connected" : "❌ Disconnected"}`
+    );
+  }, 1000);
 });
 
 // Export for Vercel
