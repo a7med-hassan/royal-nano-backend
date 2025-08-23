@@ -3,6 +3,10 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const multer = require("multer");
 
+// Import models
+const Contact = require("./models/Contact");
+const Join = require("./models/Join");
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
