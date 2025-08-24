@@ -9,12 +9,13 @@ const Join = require("./models/Join");
 
 const app = express();
 
-// السماح لدومين الفرونت فقط
+// السماح لكل الدومينات (مؤقتاً للتجربة)
 app.use(
   cors({
-    origin: "https://royalnanoceramic-new.vercel.app", // غيره للدومين بتاعك
-    methods: ["GET", "POST", "PUT", "DELETE"], // السماح بالطرق اللي محتاجها
-    credentials: true, // لو هتحتاج الكوكيز
+    origin: true, // السماح لكل الدومينات
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
