@@ -9,35 +9,58 @@ const Join = require("./models/Join");
 
 const app = express();
 
-// إعدادات CORS محسنة
+// إعدادات CORS نهائية - حل شامل
 app.use((req, res, next) => {
+  // السماح لجميع الدومينات
   res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+    "Access-Control-Allow-Origin",
+    "https://royalnanoceramic-new.vercel.app"
   );
 
+  // السماح بجميع الطرق
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+  );
+
+  // السماح بجميع الهيدرز
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, Pragma"
+  );
+
+  // السماح بالكوكيز
+  res.header("Access-Control-Allow-Credentials", "true");
+
+  // معالجة preflight requests
   if (req.method === "OPTIONS") {
-    res.sendStatus(200);
-  } else {
-    next();
+    res.status(200).end();
+    return;
   }
+
+  next();
 });
 
-// CORS middleware إضافي
+// CORS middleware احتياطي
 app.use(
   cors({
-    origin: true,
+    origin: [
+      "https://royalnanoceramic-new.vercel.app",
+      "http://localhost:3000",
+    ],
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allowedHeaders: [
       "Content-Type",
       "Authorization",
       "Origin",
       "X-Requested-With",
       "Accept",
+      "Cache-Control",
+      "Pragma",
     ],
+    optionsSuccessStatus: 200,
   })
 );
 
