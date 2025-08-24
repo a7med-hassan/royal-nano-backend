@@ -8,27 +8,24 @@ const Contact = require("./models/Contact");
 const Join = require("./models/Join");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-// Middleware
-// السماح فقط لدومين Frontend
+// السماح لدومين الفرونت فقط
 app.use(
   cors({
-    origin: "https://royalnanoceramic-new.vercel.app",
+    origin: "https://royalnanoceramic-new.vercel.app", // غيره للدومين بتاعك
+    methods: ["GET", "POST", "PUT", "DELETE"], // السماح بالطرق اللي محتاجها
+    credentials: true, // لو هتحتاج الكوكيز
   })
 );
 
 app.use(express.json());
 
-// MongoDB Connection with Caching for Serverless
+// MongoDB Connection
 const mongoUri = process.env.MONGO_URI;
 
-// Validate MONGO_URI
 if (!mongoUri) {
   console.error("❌ MONGO_URI environment variable is not set!");
   console.error("Please set MONGO_URI in your Vercel environment variables");
-} else {
-  console.log("🔑 MONGO_URI found:", mongoUri.substring(0, 50) + "...");
 }
 
 // Global cached connection for Serverless
@@ -70,7 +67,7 @@ async function connectToDatabase() {
   }
 }
 
-// Health check with database connection
+// Health check
 app.get("/api/health", async (req, res) => {
   try {
     await connectToDatabase();
@@ -97,7 +94,7 @@ app.get("/api/health", async (req, res) => {
 // Multer setup for file uploads (join form)
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Routes
+// Contact API - Car Protection Service
 app.post("/api/contact", async (req, res) => {
   try {
     await connectToDatabase();
@@ -156,6 +153,7 @@ app.get("/api/contact", async (req, res) => {
   }
 });
 
+// Join API - Job Application
 app.post("/api/join", upload.single("cv"), async (req, res) => {
   try {
     await connectToDatabase();
@@ -237,8 +235,9 @@ app.get("/", (req, res) => {
   });
 });
 
-// Start server
-const server = app.listen(PORT, () => {
+// Port
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📱 Health check: http://localhost:${PORT}/api/health`);
   console.log(
