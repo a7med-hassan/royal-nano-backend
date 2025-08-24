@@ -11,7 +11,13 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors());
+// السماح فقط لدومين Frontend
+app.use(
+  cors({
+    origin: "https://royalnanoceramic-new.vercel.app",
+  })
+);
+
 app.use(express.json());
 
 // MongoDB Connection with Caching for Serverless
