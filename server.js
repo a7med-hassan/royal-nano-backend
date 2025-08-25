@@ -10,35 +10,9 @@ const Join = require("./models/Join");
 const app = express();
 
 // إعدادات CORS نهائية - حل شامل ومحسن
-app.use((req, res, next) => {
-  // السماح لجميع الدومينات
-  res.header("Access-Control-Allow-Origin", "*");
-
-  // السماح بجميع الطرق
-  res.header(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS, PATCH"
-  );
-
-  // السماح بجميع الهيدرز
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, Pragma"
-  );
-
-  // معالجة preflight requests
-  if (req.method === "OPTIONS") {
-    res.status(200).end();
-    return;
-  }
-
-  next();
-});
-
-// CORS middleware احتياطي - بدون credentials لتجنب التعارض
 app.use(
   cors({
-    origin: true, // السماح لجميع الدومينات
+    origin: "*", // السماح لجميع الدومينات
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allowedHeaders: [
       "Content-Type",
@@ -50,6 +24,8 @@ app.use(
       "Pragma",
     ],
     optionsSuccessStatus: 200,
+    preflightContinue: false,
+    credentials: false,
   })
 );
 
