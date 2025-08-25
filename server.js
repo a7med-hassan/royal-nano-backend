@@ -9,14 +9,10 @@ const Join = require("./models/Join");
 
 const app = express();
 
-// إعدادات CORS نهائية - حل شامل
+// إعدادات CORS نهائية - حل شامل ومحسن
 app.use((req, res, next) => {
   // السماح لجميع الدومينات
   res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Origin",
-    "https://royalnanoceramic-new.vercel.app"
-  );
 
   // السماح بجميع الطرق
   res.header(
@@ -30,9 +26,6 @@ app.use((req, res, next) => {
     "Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, Pragma"
   );
 
-  // السماح بالكوكيز
-  res.header("Access-Control-Allow-Credentials", "true");
-
   // معالجة preflight requests
   if (req.method === "OPTIONS") {
     res.status(200).end();
@@ -42,14 +35,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// CORS middleware احتياطي
+// CORS middleware احتياطي - بدون credentials لتجنب التعارض
 app.use(
   cors({
-    origin: [
-      "https://royalnanoceramic-new.vercel.app",
-      "http://localhost:3000",
-    ],
-    credentials: true,
+    origin: true, // السماح لجميع الدومينات
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allowedHeaders: [
       "Content-Type",
