@@ -23,6 +23,8 @@ module.exports = async function handler(req, res) {
 
   if (req.method === "POST") {
     try {
+      console.log("📨 Received join form data:", req.body);
+
       const {
         fullName,
         phoneNumber,
@@ -34,12 +36,35 @@ module.exports = async function handler(req, res) {
         cvPath,
       } = req.body;
 
+      console.log("🔍 Extracted fields:", {
+        fullName,
+        phoneNumber,
+        email,
+        jobPosition,
+        experience,
+        additionalMessage,
+        cvFileName,
+        cvPath,
+      });
+
       // Validate required fields
       if (!fullName || !phoneNumber || !jobPosition) {
+        console.log("❌ Validation failed:", {
+          hasFullName: !!fullName,
+          hasPhoneNumber: !!phoneNumber,
+          hasJobPosition: !!jobPosition,
+        });
+
         return res.status(400).json({
           success: false,
           message:
             "Required fields are missing: fullName, phoneNumber, jobPosition",
+          receivedData: req.body,
+          missingFields: {
+            fullName: !fullName,
+            phoneNumber: !phoneNumber,
+            jobPosition: !jobPosition,
+          },
         });
       }
 
