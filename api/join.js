@@ -1,30 +1,5 @@
 const dbConnect = require("../lib/dbConnect");
 const Join = require("../models/Join");
-const multer = require("multer");
-
-// إعداد multer لمعالجة الملفات
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
-  },
-  fileFilter: (req, file, cb) => {
-    // السماح بملفات PDF و Word فقط
-    if (
-      file.mimetype === "application/pdf" ||
-      file.mimetype === "application/msword" ||
-      file.mimetype ===
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    ) {
-      cb(null, true);
-    } else {
-      cb(new Error("Only PDF and Word files are allowed"), false);
-    }
-  },
-});
-
-// معالجة رفع ملف واحد (CV)
-const uploadSingle = upload.single("cv");
 
 module.exports = async function handler(req, res) {
   // إعدادات CORS
@@ -47,99 +22,84 @@ module.exports = async function handler(req, res) {
   await dbConnect();
 
   if (req.method === "POST") {
-    // معالجة رفع الملف
-    uploadSingle(req, res, async (err) => {
-      if (err) {
-        console.error("File upload error:", err);
+    try {
+      console.log("📨 Received join form data:", req.body);
+
+      const {
+        fullName,
+        phoneNumber,
+        email,
+        jobPosition,
+        experience,
+        additionalMessage,
+        cvFileUrl, // رابط الملف من Uploadthing
+        cvFileName, // اسم الملف
+      } = req.body;
+
+      console.log("🔍 Extracted fields:", {
+        fullName,
+        phoneNumber,
+        email,
+        jobPosition,
+        experience,
+        additionalMessage,
+        cvFileUrl,
+        cvFileName,
+      });
+
+      // Validate required fields
+      if (!fullName || !phoneNumber || !jobPosition) {
+        console.log("❌ Validation failed:", {
+          hasFullName: !!fullName,
+          hasPhoneNumber: !!phoneNumber,
+          hasJobPosition: !!jobPosition,
+        });
+
         return res.status(400).json({
           success: false,
-          message: "File upload failed",
-          error: err.message,
+          message:
+            "Required fields are missing: fullName, phoneNumber, jobPosition",
+          receivedData: req.body,
+          missingFields: {
+            fullName: !fullName,
+            phoneNumber: !phoneNumber,
+            jobPosition: !jobPosition,
+          },
         });
       }
 
-      try {
-        console.log("📨 Received join form data:", req.body);
-        console.log(
-          "📁 File info:",
-          req.file
-            ? {
-                originalname: req.file.originalname,
-                mimetype: req.file.mimetype,
-                size: req.file.size,
-              }
-            : "No file uploaded"
-        );
+      const join = new Join({
+        fullName,
+        phoneNumber,
+        email,
+        jobPosition,
+        experience,
+        additionalMessage,
+        cvFileName: cvFileName || null,
+        cvPath: cvFileUrl || null, // حفظ رابط الملف من Uploadthing
+        status: "pending", // Default status
+      });
 
-        const {
-          fullName,
-          phoneNumber,
-          email,
-          jobPosition,
-          experience,
-          additionalMessage,
-        } = req.body;
+      await join.save();
 
-        console.log("🔍 Extracted fields:", {
-          fullName,
-          phoneNumber,
-          email,
-          jobPosition,
-          experience,
-          additionalMessage,
-        });
+      console.log("✅ Job application saved successfully:", join._id);
 
-        // Validate required fields
-        if (!fullName || !phoneNumber || !jobPosition) {
-          console.log("❌ Validation failed:", {
-            hasFullName: !!fullName,
-            hasPhoneNumber: !!phoneNumber,
-            hasJobPosition: !!jobPosition,
-          });
-
-          return res.status(400).json({
-            success: false,
-            message:
-              "Required fields are missing: fullName, phoneNumber, jobPosition",
-            receivedData: req.body,
-            missingFields: {
-              fullName: !fullName,
-              phoneNumber: !phoneNumber,
-              jobPosition: !jobPosition,
-            },
-          });
-        }
-
-        const join = new Join({
-          fullName,
-          phoneNumber,
-          email,
-          jobPosition,
-          experience,
-          additionalMessage,
-          cvFileName: req.file ? req.file.originalname : null,
-          cvPath: req.file ? `/uploads/cv/${req.file.originalname}` : null,
-          status: "pending", // Default status
-        });
-
-        await join.save();
-
-        res.status(200).json({
-          success: true,
-          message: "Job application submitted successfully",
-          data: join,
-          fileUploaded: !!req.file,
-          fileName: req.file ? req.file.originalname : null,
-        });
-      } catch (error) {
-        console.error("Join save error:", error);
-        res.status(500).json({
-          success: false,
-          message: "Internal server error",
-          error: error.message,
-        });
-      }
-    });
+      res.status(200).json({
+        success: true,
+        message: "Job application submitted successfully",
+        data: join,
+        fileUploaded: !!cvFileUrl,
+        fileName: cvFileName || null,
+        fileUrl: cvFileUrl || null,
+      });
+    } catch (error) {
+      console.error("💥 Join save error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Internal server error",
+        error: error.message,
+      });
+    }
   } else if (req.method === "GET") {
     try {
       const joins = await Join.find({}).sort({ createdAt: -1 }).select("-__v");
