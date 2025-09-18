@@ -3,24 +3,32 @@ const { createUploadthing, createUploadthingExpressHandler } = require("uploadth
 
 const app = express();
 
-// ✅ تعريف الـ uploader
+// ✅ أنشئ uploader
 const f = createUploadthing();
 
+// ✅ عرف routes الرفع
 const uploadRouter = createUploadthingExpressHandler({
   router: {
-    cvUploader: f({ 
+    cvUploader: f({
       pdf: { maxFileSize: "4MB" },
       "application/msword": { maxFileSize: "4MB" },
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document": { maxFileSize: "4MB" }
-    })
+    }),
+  },
+  config: {
+    token: process.env.UPLOADTHING_SECRET, // 👈 مهم جدًا
+  },
+  errorFormatter: (err) => {
+    console.error("❌ Upload error:", err);
+    return { message: err.message };
   },
   onUploadComplete: ({ file }) => {
-    console.log("✅ File uploaded:", file.url);
+    console.log("✅ CV uploaded:", file.url);
     return { fileUrl: file.url };
   },
 });
 
-// ✅ لازم Vercel يشوفه
+// ✅ اربط المسار
 app.use("/api/upload", uploadRouter);
 
 module.exports = app;
