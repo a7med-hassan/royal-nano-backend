@@ -32,8 +32,8 @@ module.exports = async function handler(req, res) {
         jobPosition,
         experience,
         additionalMessage,
-        cvFileUrl, // رابط الملف من Uploadthing
-        cvFileName, // اسم الملف
+        // cvFileUrl, // رابط الملف من Uploadthing - مؤقتاً مخفي
+        // cvFileName, // اسم الملف - مؤقتاً مخفي
       } = req.body;
 
       console.log("🔍 Extracted fields:", {
@@ -43,8 +43,8 @@ module.exports = async function handler(req, res) {
         jobPosition,
         experience,
         additionalMessage,
-        cvFileUrl,
-        cvFileName,
+        // cvFileUrl, // مؤقتاً مخفي
+        // cvFileName, // مؤقتاً مخفي
       });
 
       // Validate required fields
@@ -75,8 +75,8 @@ module.exports = async function handler(req, res) {
         jobPosition,
         experience,
         additionalMessage,
-        cvFileName: cvFileName || null,
-        cvPath: cvFileUrl || null, // حفظ رابط الملف من Uploadthing
+        cvFileName: null, // مؤقتاً مخفي
+        cvPath: null, // مؤقتاً مخفي
         status: "pending", // Default status
       });
 
@@ -86,11 +86,12 @@ module.exports = async function handler(req, res) {
 
       res.status(200).json({
         success: true,
-        message: "Job application submitted successfully",
+        message: "Job application submitted successfully (CV upload temporarily disabled)",
         data: join,
-        fileUploaded: !!cvFileUrl,
-        fileName: cvFileName || null,
-        fileUrl: cvFileUrl || null,
+        fileUploaded: false, // مؤقتاً مخفي
+        fileName: null, // مؤقتاً مخفي
+        fileUrl: null, // مؤقتاً مخفي
+        note: "CV upload feature is temporarily disabled while fixing upload issues",
       });
     } catch (error) {
       console.error("💥 Join save error:", error);
