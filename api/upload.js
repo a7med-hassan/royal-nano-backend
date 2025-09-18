@@ -1,30 +1,35 @@
 const express = require("express");
-const { createUploadthing, createUploadthingExpressHandler } = require("uploadthing/express");
+const { createUploadthing, createExpressMiddleware } = require("uploadthing/express");
 
 const app = express();
 
-// ✅ أنشئ uploader
 const f = createUploadthing();
 
-// ✅ هاندلر للرفع
-const uploadRouter = createUploadthingExpressHandler({
-  router: {
-    cvUploader: f({
-      pdf: { maxFileSize: "4MB" },
+// 📂 عرف الروتر بتاع الرفع
+const uploadRouter = {
+  cvUploader: f({ pdf: { maxFileSize: "4MB" } })
+    .onUploadComplete(({ file }) => {
+      console.log("✅ Uploaded CV:", file.url);
     }),
-  },
-  config: {
-    token: process.env.UPLOADTHING_SECRET, // لازم تحطه في Vercel Environment Variables
-  },
-  errorFormatter: (err) => {
-    return { message: err?.message || "Unknown upload error" };
-  },
-  onUploadComplete: ({ file }) => {
-    console.log("✅ CV uploaded:", file.url);
-  },
-});
+};
 
-// ✅ اربط المسار
-app.use("/api/upload", uploadRouter);
+// 📌 Middleware الأساسي
+app.use(
+  "/api/upload",
+  createExpressMiddleware({
+    router: uploadRouter,
+    config: {
+      token: process.env.UPLOADTHING_SECRET,
+    },
+    errorFormatter: (err) => {
+      return { message: err?.message || "Upload error" };
+    },
+  })
+);
+
+// للتأكد إن السيرفر شغال
+app.get("/", (req, res) => {
+  res.send("🚀 Server is running with Uploadthing!");
+});
 
 module.exports = app;
