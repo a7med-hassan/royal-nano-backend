@@ -232,6 +232,10 @@ app.get("/api/join", async (req, res) => {
   }
 });
 
+// Uploadthing route
+const { uploadRouter } = require("./api/upload.js");
+app.use("/api/uploadthing", uploadRouter);
+
 // Root
 app.get("/", (req, res) => {
   res.json({
@@ -241,6 +245,7 @@ app.get("/", (req, res) => {
     endpoints: {
       contact: "POST /api/contact",
       join: "POST /api/join",
+      upload: "POST /api/uploadthing",
       health: "GET /api/health",
     },
   });
@@ -255,6 +260,7 @@ app.listen(PORT, () => {
     `🚗 Car protection service: http://localhost:${PORT}/api/contact`
   );
   console.log(`🤝 Join form: http://localhost:${PORT}/api/join`);
+  console.log(`📤 File upload: http://localhost:${PORT}/api/uploadthing`);
   console.log(`🗄️ MongoDB: Using connection caching for Vercel`);
   console.log(`📊 Database: royalNano`);
   console.log(`🌐 Cluster: ryoalnan`);

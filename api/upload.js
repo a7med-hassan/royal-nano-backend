@@ -1,16 +1,16 @@
-import { createUploadthing, createRouteHandler } from "uploadthing/server";
+import { createUploadthing, createUploadthingExpressHandler } from "uploadthing/express";
 
 const f = createUploadthing();
 
-export const { POST } = createRouteHandler({
-  router: f({
-    cvUploader: {
-      fileTypes: ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
-      maxFileSize: "4MB",
-    },
+// Define your file router
+const fileRouter = {
+  cvUploader: f({
+    fileTypes: ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
+    maxFileSize: "4MB",
   }),
-  onUploadComplete: ({ file }) => {
-    console.log("✅ File uploaded:", file.url);
-    return { fileUrl: file.url };
-  },
+};
+
+// Create the Express handler
+export const uploadRouter = createUploadthingExpressHandler({
+  router: fileRouter,
 });

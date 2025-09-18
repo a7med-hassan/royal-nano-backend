@@ -35,7 +35,7 @@ JWT_SECRET=your_jwt_secret_here
 ### 1. رفع ملف CV (Uploadthing SDK)
 
 ```bash
-POST /api/upload
+POST /api/uploadthing
 ```
 
 **Headers:**
@@ -113,7 +113,7 @@ async function uploadCV(file) {
   const formData = new FormData();
   formData.append('file', file);
   
-  const response = await fetch('/api/upload', {
+  const response = await fetch('/api/uploadthing', {
     method: 'POST',
     body: formData
   });
