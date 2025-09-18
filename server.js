@@ -110,7 +110,7 @@ app.post("/api/contact", async (req, res) => {
   try {
     await connectToDatabase();
 
-    const { fullName, phoneNumber, carType, carModel, notes } = req.body;
+    const { fullName, phoneNumber, carType, carModel, additionalNotes } = req.body;
 
     if (!fullName || !phoneNumber || !carType || !carModel) {
       return res.status(400).json({
@@ -125,7 +125,7 @@ app.post("/api/contact", async (req, res) => {
       phoneNumber,
       carType,
       carModel,
-      notes,
+      additionalNotes,
     });
 
     await contact.save();
