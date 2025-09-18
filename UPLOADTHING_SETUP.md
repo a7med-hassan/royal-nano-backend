@@ -1,8 +1,8 @@
-# نظام رفع ملفات CV باستخدام Uploadthing
+# نظام رفع ملفات CV باستخدام Uploadthing SDK
 
 ## 📋 نظرة عامة
 
-تم تحديث نظام Join Form ليدعم رفع ملفات CV باستخدام Uploadthing API بدلاً من multer المحلي.
+تم تحديث نظام Join Form ليدعم رفع ملفات CV باستخدام Uploadthing SDK الرسمي.
 
 ## 🔧 الإعداد المطلوب
 
@@ -10,15 +10,16 @@
 
 1. اذهب إلى [uploadthing.com](https://uploadthing.com)
 2. أنشئ حساب جديد
-3. احصل على API Token من لوحة التحكم
+3. احصل على SECRET و APP_ID من لوحة التحكم
 
 ### 2. إضافة Environment Variables
 
-في ملف `.env` أو Vercel Environment Variables:
+في Vercel Dashboard → Project → Settings → Environment Variables:
 
 ```bash
-# Uploadthing API Token
-UPLOADTHING_TOKEN=your_uploadthing_token_here
+# Uploadthing Configuration
+UPLOADTHING_SECRET=sk_live_663334a5e71021c4...
+UPLOADTHING_APP_ID=8cxjowf7fx
 
 # MongoDB Connection
 MONGO_URI=mongodb+srv://test:200111@ryoalnan.ev2z8cp.mongodb.net/?retryWrites=true&w=majority&appName=ryoalnan
@@ -27,9 +28,11 @@ MONGO_URI=mongodb+srv://test:200111@ryoalnan.ev2z8cp.mongodb.net/?retryWrites=tr
 JWT_SECRET=your_jwt_secret_here
 ```
 
+⚠️ **مهم**: لا تضع علامات `'` حول القيم في Vercel.
+
 ## 🚀 API Endpoints
 
-### 1. رفع ملف CV
+### 1. رفع ملف CV (Uploadthing SDK)
 
 ```bash
 POST /api/upload
@@ -48,16 +51,15 @@ file: [CV File] (PDF or Word)
 **Response:**
 ```json
 {
-  "success": true,
-  "message": "File uploaded successfully",
-  "data": {
-    "fileUrl": "https://uploadthing.com/f/abc123",
-    "fileName": "cv.pdf",
-    "fileSize": 1024000,
-    "fileType": "application/pdf"
-  }
+  "fileUrl": "https://uploadthing.com/f/abc123"
 }
 ```
+
+**المميزات:**
+- ✅ دعم PDF و Word
+- ✅ حد أقصى 4MB
+- ✅ رفع آمن وسريع
+- ✅ روابط دائمة
 
 ### 2. إرسال طلب التوظيف
 
@@ -106,7 +108,7 @@ Content-Type: application/json
 ### JavaScript/TypeScript Example
 
 ```javascript
-// 1. رفع الملف أولاً
+// 1. رفع الملف أولاً (Uploadthing SDK)
 async function uploadCV(file) {
   const formData = new FormData();
   formData.append('file', file);
@@ -117,7 +119,7 @@ async function uploadCV(file) {
   });
   
   const result = await response.json();
-  return result.data.fileUrl;
+  return result.fileUrl; // مباشرة من Uploadthing
 }
 
 // 2. إرسال بيانات النموذج
