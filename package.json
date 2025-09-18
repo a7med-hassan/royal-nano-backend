@@ -2,7 +2,6 @@
   "name": "royal-nano-backend",
   "version": "1.0.0",
   "description": "Backend API for Royal Nano Angular frontend with MongoDB Atlas integration (Cluster: ryoalnan)",
-  "type": "module",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

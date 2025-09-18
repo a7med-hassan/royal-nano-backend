@@ -1,4 +1,4 @@
-import { createUploadthingExpressHandler } from "uploadthing/express";
+const { createUploadthingExpressHandler } = require("uploadthing/express");
 
 // config الأساسي
 const handler = createUploadthingExpressHandler({
@@ -20,6 +20,6 @@ const handler = createUploadthingExpressHandler({
 });
 
 // 👇 لازم export default عشان Vercel يعرف يتعامل معاه
-export default async function uploadthingHandler(req, res) {
+module.exports = async function uploadthingHandler(req, res) {
   return handler(req, res);
-}
+};
