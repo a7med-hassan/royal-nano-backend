@@ -1,4 +1,9 @@
-const dbConnect = require("../lib/dbConnect");
+// ملاحظة: في Next.js، أضف هذا في ملف next.config.js:
+// export const config = {
+//   api: {
+//     bodyParser: false, // ضروري عشان الملف يتبعت زي ما هو
+//   },
+// };
 
 module.exports = async function handler(req, res) {
   // إعدادات CORS
@@ -21,7 +26,7 @@ module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ 
       success: false,
-      error: "Method not allowed. Use POST only." 
+      error: "Method not allowed" 
     });
   }
 
@@ -30,7 +35,7 @@ module.exports = async function handler(req, res) {
     if (!token) {
       return res.status(500).json({ 
         success: false,
-        error: "UPLOADTHING_TOKEN is missing from environment variables" 
+        error: "UPLOADTHING_TOKEN is missing" 
       });
     }
 
@@ -40,41 +45,33 @@ module.exports = async function handler(req, res) {
     const response = await fetch("https://api.uploadthing.com/v1/upload", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": req.headers["content-type"] || "multipart/form-data",
+        Authorization: `Bearer ${token}`, // 👈 أهم حاجة
       },
-      body: req.body, // الملف من Angular FormData
+      body: req, // الملف من Angular formData
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("❌ Uploadthing API error:", errorText);
+      console.error("❌ Uploadthing API error:", data);
       return res.status(response.status).json({ 
-        success: false,
-        error: `Upload failed: ${errorText}` 
+        success: false, 
+        error: data 
       });
     }
 
-    const data = await response.json();
     console.log("✅ File uploaded successfully:", data);
 
-    // إرجاع رابط الملف
     return res.status(200).json({
       success: true,
-      message: "File uploaded successfully",
-      data: {
-        fileUrl: data.fileUrl || data.url, // حسب رد Uploadthing
-        fileName: data.fileName || data.name,
-        fileSize: data.fileSize || data.size,
-        fileType: data.fileType || data.type,
-      }
+      fileUrl: data.fileUrl ?? data.url,
     });
 
-  } catch (error) {
-    console.error("💥 Upload error:", error);
+  } catch (err) {
+    console.error("💥 Upload error:", err);
     return res.status(500).json({ 
-      success: false,
-      error: error.message 
+      success: false, 
+      error: err.message 
     });
   }
 };
