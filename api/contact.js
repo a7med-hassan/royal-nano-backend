@@ -23,10 +23,18 @@ module.exports = async function handler(req, res) {
 
   if (req.method === "POST") {
     try {
-      const { fullName, phoneNumber, carType, carModel, additionalNotes } =
-        req.body;
+      const {
+        fullName,
+        phoneNumber,
+        carType,
+        carModel,
+        additionalNotes,
+        utm_source,
+        utm_medium,
+        utm_campaign,
+      } = req.body;
 
-      // Validate required fields
+      // التحقق من الحقول الأساسية
       if (!fullName || !phoneNumber || !carType || !carModel) {
         return res.status(400).json({
           success: false,
@@ -41,7 +49,11 @@ module.exports = async function handler(req, res) {
         carType,
         carModel,
         additionalNotes,
+        utm_source,
+        utm_medium,
+        utm_campaign,
       });
+
       await contact.save();
 
       res.status(200).json({

@@ -7,6 +7,9 @@ const ContactSchema = new mongoose.Schema(
     carType: { type: String, required: true },
     carModel: { type: String, required: true },
     additionalNotes: { type: String, required: false },
+    utm_source: { type: String, required: false },
+    utm_medium: { type: String, required: false },
+    utm_campaign: { type: String, required: false },
   },
   { timestamps: true }
 );
