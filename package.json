@@ -8,8 +8,7 @@
     "dev": "nodemon server.js",
     "local": "node server-local.js",
     "local:dev": "nodemon server-local.js",
-    "test": "node test-api.js",
-    "test:car-models": "node test-car-models.js"
+    "test": "node test-api.js"
   },
   "dependencies": {
     "axios": "^1.6.0",
