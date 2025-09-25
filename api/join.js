@@ -84,15 +84,55 @@ module.exports = async function handler(req, res) {
 
       console.log("✅ Job application saved successfully:", join._id);
 
-      res.status(200).json({
-        success: true,
-        message: "Job application submitted successfully (CV upload temporarily disabled)",
-        data: join,
-        fileUploaded: false, // مؤقتاً مخفي
-        fileName: null, // مؤقتاً مخفي
-        fileUrl: null, // مؤقتاً مخفي
-        note: "CV upload feature is temporarily disabled while fixing upload issues",
-      });
+      // إرسال البيانات إلى EngazCRM عبر Proxy
+      try {
+        // إرسال البيانات الأصلية للـ Proxy (سيتولى الـ mapping)
+        const proxyPayload = {
+          fullName,
+          phoneNumber,
+          email,
+          jobPosition,
+          experience,
+          additionalMessage,
+        };
+
+        console.log("📤 Sending job application to EngazCRM via proxy:", proxyPayload);
+        
+        const engazRes = await axios.post(`${req.protocol}://${req.get('host')}/api/engazcrm-join`, proxyPayload, {
+          timeout: 10000, // 10 seconds timeout
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        console.log("✅ EngazCRM join proxy response:", engazRes.data);
+
+        res.status(200).json({
+          success: true,
+          message: "Job application submitted successfully and sent to EngazCRM (CV upload temporarily disabled)",
+          data: join,
+          engazResponse: engazRes.data,
+          fileUploaded: false, // مؤقتاً مخفي
+          fileName: null, // مؤقتاً مخفي
+          fileUrl: null, // مؤقتاً مخفي
+          note: "CV upload feature is temporarily disabled while fixing upload issues",
+        });
+      } catch (engazError) {
+        console.error("❌ EngazCRM join proxy error:", engazError.response?.data || engazError.message);
+        
+        // إرجاع نجاح مع تحذير من فشل EngazCRM
+        res.status(200).json({
+          success: true,
+          message: "Job application submitted successfully, but failed to send to EngazCRM (CV upload temporarily disabled)",
+          data: join,
+          engazError: engazError.response?.data || engazError.message,
+          warning: "Data saved locally but not synced to CRM",
+          fileUploaded: false, // مؤقتاً مخفي
+          fileName: null, // مؤقتاً مخفي
+          fileUrl: null, // مؤقتاً مخفي
+          note: "CV upload feature is temporarily disabled while fixing upload issues",
+        });
+      }
     } catch (error) {
       console.error("💥 Join save error:", error);
       res.status(500).json({

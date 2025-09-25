@@ -7,6 +7,9 @@ const multer = require("multer");
 const Contact = require("./models/Contact");
 const Join = require("./models/Join");
 
+// Import routes
+const carBrandsRouter = require("./routes/carBrands");
+
 const app = express();
 
 // إعدادات CORS نهائية - حل شامل ومحسن
@@ -30,6 +33,9 @@ app.use(
 );
 
 app.use(express.json());
+
+// Routes
+app.use("/api", carBrandsRouter);
 
 // MongoDB Connection
 const mongoUri = process.env.MONGO_URI;
@@ -244,6 +250,7 @@ app.get("/", (req, res) => {
       contact: "POST /api/contact",
       join: "POST /api/join",
       upload: "POST /api/upload",
+      carBrands: "GET /api/car-brands",
       health: "GET /api/health",
     },
   });
@@ -259,6 +266,7 @@ app.listen(PORT, () => {
   );
   console.log(`🤝 Join form: http://localhost:${PORT}/api/join`);
   console.log(`📤 File upload: http://localhost:${PORT}/api/upload`);
+  console.log(`🚙 Car brands: http://localhost:${PORT}/api/car-brands`);
   console.log(`🗄️ MongoDB: Using connection caching for Vercel`);
   console.log(`📊 Database: royalNano`);
   console.log(`🌐 Cluster: ryoalnan`);
