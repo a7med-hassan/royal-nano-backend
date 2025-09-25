@@ -62,16 +62,18 @@ module.exports = async function handler(req, res) {
 
       await contact.save();
 
-      // إرسال البيانات إلى EngazCRM عبر Proxy
+      // إرسال البيانات إلى EngazCRM مباشرة
       try {
-        const engazRes = await axios.post(`${req.protocol}://${req.get('host')}/api/engazcrm`, {
+        const engazPayload = {
           full_name,
           mobile,
           client_16492512972331,
           client_16849336084508,
           client_16492513797105,
           client_17293620987926,
-        }, {
+        };
+
+        const engazRes = await axios.post(ENGAZ_WEBHOOK, engazPayload, {
           timeout: 10000,
           headers: { "Content-Type": "application/json" },
         });
