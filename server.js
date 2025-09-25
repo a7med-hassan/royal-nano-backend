@@ -9,6 +9,7 @@ const Join = require("./models/Join");
 
 // Import routes
 const carBrandsRouter = require("./routes/carBrands");
+const carModelsRouter = require("./routes/carModels");
 const serviceTypesRouter = require("./routes/serviceTypes");
 
 const app = express();
@@ -37,6 +38,7 @@ app.use(express.json());
 
 // Routes
 app.use("/api", carBrandsRouter);
+app.use("/api", carModelsRouter);
 app.use("/api", serviceTypesRouter);
 
 // MongoDB Connection
@@ -253,6 +255,7 @@ app.get("/", (req, res) => {
       join: "POST /api/join",
       upload: "POST /api/upload",
       carBrands: "GET /api/car-brands",
+      carModels: "GET /api/car-models?brand=BMW",
       serviceTypes: "GET /api/service-types",
       health: "GET /api/health",
     },
@@ -270,6 +273,7 @@ app.listen(PORT, () => {
   console.log(`🤝 Join form: http://localhost:${PORT}/api/join`);
   console.log(`📤 File upload: http://localhost:${PORT}/api/upload`);
   console.log(`🚙 Car brands: http://localhost:${PORT}/api/car-brands`);
+  console.log(`🚗 Car models: http://localhost:${PORT}/api/car-models?brand=BMW`);
   console.log(`🛡️ Service types: http://localhost:${PORT}/api/service-types`);
   console.log(`🗄️ MongoDB: Using connection caching for Vercel`);
   console.log(`📊 Database: royalNano`);
