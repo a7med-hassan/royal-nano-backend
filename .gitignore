@@ -101,3 +101,11 @@ Thumbs.db
 # Temporary files
 tmp/
 temp/
+
+# Test files
+test-*.js
+*.test.js
+*.spec.js
+
+# Development files
+server-local.js
