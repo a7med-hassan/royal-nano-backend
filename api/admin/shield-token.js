@@ -1,6 +1,6 @@
 // ✅ Shield Token API with CORS fix
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   // ----------------------------
   // 1️⃣ إعداد CORS Headers
   // ----------------------------
@@ -57,5 +57,4 @@ export default async function handler(req, res) {
       error: error.message,
     });
   }
-}
-
+};
