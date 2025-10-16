@@ -6,6 +6,7 @@ Backend API for Royal Nano Angular frontend with MongoDB Atlas integration and V
 
 - **Car Protection Service API** - نموذج طلب خدمة حماية السيارة
 - **Join Form API** - نموذج التقديم للوظائف
+- **User Permissions API** - إدارة صلاحيات المستخدمين مع Firebase Authentication 🆕
 - **MongoDB Atlas Integration** - تخزين البيانات في قاعدة بيانات MongoDB
 - **Health Check Endpoint** - فحص حالة الخادم وقاعدة البيانات
 - **CORS Enabled** - دعم الواجهات الأمامية
@@ -94,6 +95,18 @@ GET /api/join
 ```
 
 **Returns:** جميع طلبات التوظيف مرتبة حسب التاريخ
+
+### User Permissions 🆕
+
+```
+GET /api/user/permissions
+```
+
+**Headers:** `Authorization: Bearer <firebase_token>`
+
+**Returns:** صلاحيات المستخدم بناءً على Firebase Token
+
+**للمزيد من التفاصيل:** راجع [USER_PERMISSIONS_API.md](./USER_PERMISSIONS_API.md)
 
 ## 🛠️ Installation & Setup
 

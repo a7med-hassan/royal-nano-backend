@@ -6,13 +6,24 @@ const multer = require("multer");
 // Import models
 const Contact = require("./models/Contact");
 const Join = require("./models/Join");
+const User = require("./models/User");
 
 // Import routes
 const carBrandsRouter = require("./routes/carBrands");
 const carModelsRouter = require("./routes/carModels");
 const serviceTypesRouter = require("./routes/serviceTypes");
 
+// Import Firebase
+const { initializeFirebase, verifyFirebaseToken } = require("./lib/firebase");
+
 const app = express();
+
+// Initialize Firebase Admin SDK
+try {
+  initializeFirebase();
+} catch (error) {
+  console.warn("⚠️ Firebase initialization failed. User permissions API will not work.");
+}
 
 // إعدادات CORS نهائية - حل شامل ومحسن
 app.use(
@@ -244,6 +255,67 @@ app.get("/api/join", async (req, res) => {
 
 // Uploadthing route is handled by Vercel API route at /api/upload
 
+// User Permissions API - Firebase Authentication
+app.get("/api/user/permissions", verifyFirebaseToken, async (req, res) => {
+  try {
+    await connectToDatabase();
+
+    const firebaseUid = req.user.uid;
+
+    if (!firebaseUid) {
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
+      });
+    }
+
+    // Find user in database
+    const user = await User.findByFirebaseUid(firebaseUid);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found in database",
+        hint: "User needs to be registered in the system first",
+      });
+    }
+
+    // Check if user is active
+    if (!user.isActive) {
+      return res.status(403).json({
+        success: false,
+        message: "User account is inactive",
+      });
+    }
+
+    // Update last login
+    user.lastLogin = new Date();
+    await user.save();
+
+    // Return user permissions
+    return res.status(200).json({
+      success: true,
+      data: {
+        userId: user._id,
+        firebaseUid: user.firebaseUid,
+        email: user.email,
+        fullName: user.fullName,
+        role: user.role,
+        permissions: user.permissions,
+        isActive: user.isActive,
+        lastLogin: user.lastLogin,
+      },
+    });
+  } catch (error) {
+    console.error("❌ Get permissions error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+});
+
 // Root
 app.get("/", (req, res) => {
   res.json({
@@ -257,6 +329,7 @@ app.get("/", (req, res) => {
       carBrands: "GET /api/car-brands",
       carModels: "GET /api/car-models?brand=BMW",
       serviceTypes: "GET /api/service-types",
+      userPermissions: "GET /api/user/permissions (requires Firebase token)",
       health: "GET /api/health",
     },
   });
@@ -275,6 +348,7 @@ app.listen(PORT, () => {
   console.log(`🚙 Car brands: http://localhost:${PORT}/api/car-brands`);
   console.log(`🚗 Car models: http://localhost:${PORT}/api/car-models?brand=BMW`);
   console.log(`🛡️ Service types: http://localhost:${PORT}/api/service-types`);
+  console.log(`👤 User permissions: http://localhost:${PORT}/api/user/permissions`);
   console.log(`🗄️ MongoDB: Using connection caching for Vercel`);
   console.log(`📊 Database: royalNano`);
   console.log(`🌐 Cluster: ryoalnan`);
