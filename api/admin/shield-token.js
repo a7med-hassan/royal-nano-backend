@@ -3,35 +3,31 @@
 const admin = require("firebase-admin");
 const jwt = require("jsonwebtoken");
 
-// Initialize Firebase Admin if not already initialized
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT))
-  });
+// Global cached Firebase instance for Vercel
+if (!global.firebaseAdmin) {
+  try {
+    if (admin.apps.length === 0 && process.env.FIREBASE_SERVICE_ACCOUNT) {
+      const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+      global.firebaseAdmin = admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+      });
+      console.log("✅ Firebase Admin initialized for shield-token");
+    } else if (admin.apps.length > 0) {
+      global.firebaseAdmin = admin.app();
+    }
+  } catch (error) {
+    console.error("❌ Firebase initialization error:", error.message);
+  }
 }
 
 module.exports = async (req, res) => {
   // ----------------------------
-  // 1️⃣ إعداد CORS Headers
+  // 1️⃣ إعداد CORS Headers (يجب أن تكون أول شيء)
   // ----------------------------
-  const allowedOrigins = [
-    'http://localhost:4200',
-    'http://localhost:64923',
-    'https://royalnanoceramic.com',
-    'https://www.royalnanoceramic.com',
-    'https://royalshieldworld.com',
-    'https://www.royalshieldworld.com'
-  ];
-
-  const origin = req.headers.origin;
-
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  }
-
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept');
+  res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
 
   // ✅ رد فوري على preflight request
   if (req.method === 'OPTIONS') {
@@ -57,8 +53,19 @@ module.exports = async (req, res) => {
       });
     }
 
+    // Get Firebase app instance
+    const app = global.firebaseAdmin || (admin.apps.length > 0 ? admin.app() : null);
+    
+    if (!app) {
+      console.error("❌ Firebase not initialized");
+      return res.status(500).json({
+        success: false,
+        message: 'Firebase not configured',
+      });
+    }
+
     // 🔹 تحقق من صلاحية توكن Firebase
-    const decoded = await admin.auth().verifyIdToken(firebaseToken);
+    const decoded = await admin.auth(app).verifyIdToken(firebaseToken);
 
     if (!decoded || !decoded.uid) {
       return res.status(401).json({
@@ -74,12 +81,13 @@ module.exports = async (req, res) => {
       { 
         uid: decoded.uid, 
         email: decoded.email, 
-        name: decoded.name,
+        name: decoded.name || decoded.email,
         role: 'admin',
-        type: 'shield-access'
+        type: 'shield-access',
+        iat: Math.floor(Date.now() / 1000)
       },
       SHIELD_SECRET,
-      { expiresIn: '5m' } // مدة قصيرة للأمان
+      { expiresIn: '5m' }
     );
 
     return res.status(200).json({
@@ -90,11 +98,11 @@ module.exports = async (req, res) => {
       user: {
         uid: decoded.uid,
         email: decoded.email,
-        name: decoded.name
+        name: decoded.name || decoded.email
       }
     });
   } catch (error) {
-    console.error('Shield token error:', error);
+    console.error('❌ Shield token error:', error);
     
     // تحديد نوع الخطأ
     if (error.code === 'auth/id-token-expired') {
