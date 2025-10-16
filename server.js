@@ -25,25 +25,27 @@ try {
   console.warn("⚠️ Firebase initialization failed. User permissions API will not work.");
 }
 
-// إعدادات CORS نهائية - حل شامل ومحسن
+// ✅ السماح بطلبات من لوكال ومواقعك فقط
 app.use(
   cors({
-    origin: "*", // السماح لجميع الدومينات
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "Origin",
-      "X-Requested-With",
-      "Accept",
-      "Cache-Control",
-      "Pragma",
+    origin: [
+      'http://localhost:4200',    // لو بتشغل Angular
+      'http://localhost:64923',   // المنفذ الحالي اللي ظاهر عندك
+      'https://royalnanoceramic.com',
+      'https://www.royalnanoceramic.com',
+      'https://royalshieldworld.com',
+      'https://www.royalshieldworld.com'
     ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With', 'Accept', 'Cache-Control', 'Pragma'],
+    credentials: true,
     optionsSuccessStatus: 200,
     preflightContinue: false,
-    credentials: false,
   })
 );
+
+// ✅ رد على preflight requests
+app.options('*', cors());
 
 app.use(express.json());
 
