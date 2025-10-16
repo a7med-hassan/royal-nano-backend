@@ -1,13 +1,13 @@
-// ✅ Shield Token API with CORS fix
+// ✅ Shield Token API (CommonJS version for Vercel)
 
-module.exports = async function handler(req, res) {
+module.exports = async (req, res) => {
   // ----------------------------
   // 1️⃣ إعداد CORS Headers
   // ----------------------------
   const allowedOrigins = [
-    'http://localhost:4200',       // Angular dev
-    'http://localhost:64923',      // منفذك الحالي
-    'https://royalnanoceramic.com', 
+    'http://localhost:4200',
+    'http://localhost:64923',
+    'https://royalnanoceramic.com',
     'https://www.royalnanoceramic.com',
     'https://royalshieldworld.com',
     'https://www.royalshieldworld.com'
@@ -23,16 +23,15 @@ module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
 
-  // ✅ رد فوري على preflight request (OPTIONS)
+  // ✅ رد فوري على preflight request
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
   // ----------------------------
-  // 2️⃣ من هنا منطق الشغل الأساسي
+  // 2️⃣ المنطق الرئيسي
   // ----------------------------
   try {
-    // مثال توضيحي: استخرج الـ token من الهيدر
     const token = req.headers.authorization?.split(' ')[1];
 
     if (!token) {
@@ -42,12 +41,10 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // ⚙️ تحقق أو تعامل مع الـ token هنا (اختياري)
-    // مثال تجريبي: نرجع بيانات افتراضية
     return res.status(200).json({
       success: true,
       message: 'Shield token verified successfully',
-      token: token.substring(0, 10) + '...', // جزء بسيط من التوكن فقط للعرض
+      tokenPreview: token.substring(0, 10) + '...',
     });
   } catch (error) {
     console.error('Shield token error:', error);
