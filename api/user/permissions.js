@@ -1,5 +1,6 @@
 // api/user/permissions.js
 const admin = require("firebase-admin");
+const { setupCors } = require("../../lib/cors");
 
 if (!admin.apps.length) {
   admin.initializeApp({
@@ -10,14 +11,9 @@ if (!admin.apps.length) {
 const db = admin.firestore();
 
 module.exports = async (req, res) => {
-  // ✅ إعدادات CORS
-  res.setHeader('Access-Control-Allow-Origin', '*'); // أو دومينات محددة
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-  // ✅ مهم جدًا لتجاوز preflight
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+  // ✅ إعدادات CORS - يجب أن تكون أول شيء
+  if (setupCors(req, res)) {
+    return; // Handle preflight request
   }
 
   try {

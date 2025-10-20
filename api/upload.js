@@ -1,4 +1,5 @@
 const { createUploadthingExpressHandler } = require("uploadthing/express");
+const { setupCors } = require("../lib/cors");
 
 const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4MB
 const ALLOWED_TYPES = ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]; // pdf + docx
@@ -24,14 +25,9 @@ const handler = createUploadthingExpressHandler({
 
 // Export مباشرة لـ Vercel
 module.exports = async function uploadHandler(req, res) {
-  // ✅ إعدادات CORS
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-
-  // ✅ معالجة preflight requests
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
+  // ✅ إعدادات CORS - يجب أن تكون أول شيء
+  if (setupCors(req, res)) {
+    return; // Handle preflight request
   }
 
   try {

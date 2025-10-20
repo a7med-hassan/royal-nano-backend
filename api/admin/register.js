@@ -1,23 +1,12 @@
 const dbConnect = require("../../lib/dbConnect");
 const Admin = require("../../models/Admin");
 const { generateToken } = require("../../lib/auth");
+const { setupCors } = require("../../lib/cors");
 
 module.exports = async function handler(req, res) {
-  // إعدادات CORS
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS, PATCH"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, Pragma"
-  );
-
-  // معالجة preflight requests
-  if (req.method === "OPTIONS") {
-    res.status(200).end();
-    return;
+  // ✅ إعدادات CORS - يجب أن تكون أول شيء
+  if (setupCors(req, res)) {
+    return; // Handle preflight request
   }
 
   if (req.method !== "POST") {
