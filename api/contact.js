@@ -6,11 +6,20 @@ const axios = require("axios");
 const ENGAZ_WEBHOOK = "https://api.engazcrm.net/webhook/integration/royalnanoceramic/11/8/1";
 
 module.exports = async function handler(req, res) {
-  // ✅ إعدادات CORS - يجب أن تكون أول شيء
-  res.setHeader("Access-Control-Allow-Origin", "https://www.royalnanoceramic.com");
+  // ✅ السماح بأكثر من مصدر (للتطوير والإنتاج)
+  const allowedOrigins = [
+    "https://www.royalnanoceramic.com",  // الموقع الحقيقي
+    "http://localhost:4200"              // وقت التطوير
+  ];
+
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept");
-  res.setHeader("Access-Control-Max-Age", "86400"); // 24 hours
+  res.setHeader("Access-Control-Max-Age", "86400");
 
   // ✅ معالجة preflight requests - يجب أن تكون قبل أي منطق آخر
   if (req.method === "OPTIONS") {
