@@ -4,13 +4,14 @@ const ContactSchema = new mongoose.Schema(
   {
     fullName: { type: String, required: true },
     phoneNumber: { type: String, required: true },
-    carType: { type: String, required: true },
-    carModel: { type: String, required: true },
+    carType: { type: String, required: false },
+    carModel: { type: String, required: false },
     additionalNotes: { type: String, required: false },
     serviceType: { type: String, required: false },
     utm_source: { type: String, required: false },
     utm_medium: { type: String, required: false },
     utm_campaign: { type: String, required: false },
+    formSource: { type: String, required: false },
   },
   { timestamps: true }
 );

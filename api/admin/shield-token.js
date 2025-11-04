@@ -2,7 +2,6 @@
 
 const admin = require("firebase-admin");
 const jwt = require("jsonwebtoken");
-const { setupCors } = require("../../lib/cors");
 
 // Global cached Firebase instance for Vercel
 if (!global.firebaseAdmin) {
@@ -25,8 +24,14 @@ module.exports = async (req, res) => {
   // ----------------------------
   // 1️⃣ إعداد CORS Headers (يجب أن تكون أول شيء)
   // ----------------------------
-  if (setupCors(req, res)) {
-    return; // Handle preflight request
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept');
+  res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
+
+  // ✅ رد فوري على preflight request
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
   }
 
   // ----------------------------

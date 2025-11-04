@@ -1,12 +1,23 @@
 const axios = require("axios");
-const { setupCors } = require("../lib/cors");
 
 const ENGAZ_WEBHOOK = "https://api.engazcrm.net/webhook/integration/royalnanoceramic/11/8/1";
 
 module.exports = async function handler(req, res) {
-  // ✅ إعدادات CORS - يجب أن تكون أول شيء
-  if (setupCors(req, res)) {
-    return; // Handle preflight request
+  // إعدادات CORS
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "POST, OPTIONS"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, Pragma"
+  );
+
+  // معالجة preflight requests
+  if (req.method === "OPTIONS") {
+    res.status(200).end();
+    return;
   }
 
   // السماح بـ POST فقط
