@@ -40,10 +40,10 @@ module.exports = async function handler(req, res) {
         utm_source,
         utm_medium,
         utm_campaign,
-        form_source // نوع الفورم (اختياري - landing, contact, mini)
+        form_source // نوع الفورم (اختياري)
       } = req.body;
 
-      // ✅ تحقق أساسي: لازم يكون فيه على الأقل اسم وموبايل
+      // ✅ تحقق أساسي
       if (!full_name || !mobile) {
         return res.status(400).json({
           success: false,
@@ -51,7 +51,7 @@ module.exports = async function handler(req, res) {
         });
       }
 
-      // 🧠 إعداد بيانات الحفظ الديناميكية
+      // 🧠 إعداد بيانات الحفظ في الداشبورد
       const contactData = {
         fullName: full_name,
         phoneNumber: mobile,
@@ -65,11 +65,11 @@ module.exports = async function handler(req, res) {
         formSource: form_source || "unspecified",
       };
 
-      // ✅ حفظ البيانات في قاعدة البيانات
+      // ✅ حفظ في قاعدة البيانات
       const contact = new Contact(contactData);
       await contact.save();
 
-      // ✅ إرسال فقط الحقول اللي العميل فعلاً دخلها إلى EngazCRM
+      // ✅ تجهيز payload لـ EngazCRM
       const engazPayload = {};
       for (const [key, value] of Object.entries(req.body)) {
         if (value !== "" && value !== null && value !== undefined) {
@@ -77,7 +77,7 @@ module.exports = async function handler(req, res) {
         }
       }
 
-      // ✅ إرسال البيانات لـ EngazCRM
+      // ✅ إرسال إلى EngazCRM
       let engazResData = null;
       try {
         const engazRes = await axios.post(ENGAZ_WEBHOOK, engazPayload, {
@@ -90,8 +90,9 @@ module.exports = async function handler(req, res) {
         console.error("❌ EngazCRM error:", engazError.response?.data || engazError.message);
       }
 
-      // ✅ إرسال البيانات إلى 8xCRM (بغض النظر عن Engaz)
+      // ✅ إرسال إلى 8xCRM
       try {
+        // 1️⃣ الحصول على Access Token
         const tokenResponse = await axios.post(
           "https://testing.8xcrm.com/oauth/token",
           {
@@ -112,38 +113,47 @@ module.exports = async function handler(req, res) {
 
         const accessToken = tokenResponse.data.access_token;
 
-        // ✅ 8xCRM يستقبل 3 حقول فقط
+        // 2️⃣ تجهيز البيانات بصيغة 8xCRM (3 فقط)
         const leadPayload = {
-          full_name,
-          mobile,
-          additionalNotes: client_16492513797105 || "",
+          title: "Mr",
+          full_name: full_name,
+          description: client_16492513797105 || "",
+          phones: [
+            {
+              phone: mobile,
+              country_code: "EG",
+            },
+          ],
+          form_id: "000001", // رقم النموذج بتاعك
         };
 
-        const eightxResponse = await axios.post(
+        // 3️⃣ إرسالها لـ 8xCRM
+        const eightxRes = await axios.post(
           "https://testing.8xcrm.com/api/v1/lead_generation/web_form_routings/storeLead",
           leadPayload,
           {
             headers: {
               "Content-Type": "application/json",
               "Accept": "application/json",
-              "Authorization": `Bearer ${accessToken}`,
               "User-Agent": "RoyalNano/Web",
+              "Authorization": `Bearer ${accessToken}`,
             },
           }
         );
 
-        console.log("✅ Lead sent to 8xCRM:", eightxResponse.data);
+        console.log("✅ Lead sent to 8xCRM:", eightxRes.data);
       } catch (eightxError) {
         console.error("❌ Error sending lead to 8xCRM:", eightxError.response?.data || eightxError.message);
       }
 
-      // ✅ الرد النهائي للفرونت
+      // ✅ الرد النهائي
       res.status(200).json({
         success: true,
-        message: "✅ تم حفظ الطلب وإرساله إلى EngazCRM و 8xCRM (إن وُجِد).",
+        message: "✅ تم حفظ الطلب وإرساله إلى EngazCRM و 8xCRM بنجاح.",
         data: contact,
-        engazResponse: engazResData || "Engaz failed or not available",
+        engazResponse: engazResData,
       });
+
     } catch (error) {
       console.error("Contact save error:", error);
       res.status(500).json({

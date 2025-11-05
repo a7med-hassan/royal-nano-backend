@@ -11,7 +11,7 @@ const ContactSchema = new mongoose.Schema(
     utm_source: { type: String, required: false },
     utm_medium: { type: String, required: false },
     utm_campaign: { type: String, required: false },
-    formSource: { type: String, required: false },
+    formSource: { type: String, default: "unspecified" },
   },
   { timestamps: true }
 );
