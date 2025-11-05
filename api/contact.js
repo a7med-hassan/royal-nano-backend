@@ -84,6 +84,61 @@ module.exports = async function handler(req, res) {
           headers: { "Content-Type": "application/json" },
         });
 
+        // ✅ إرسال البيانات إلى 8xCRM بعد EngazCRM
+        try {
+          // 1️⃣ أولاً نحصل على Access Token
+          const tokenResponse = await axios.post(
+            "https://testing.8xcrm.com/oauth/token",
+            {
+              grant_type: "password",
+              client_id: "2",
+              client_secret: "mbRrnLa1LzYZTfHtqeUsE2ZJUC53exFl8HBAMYDg",
+              username: "support@8worx.com",
+              password: "123456",
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "User-Agent": "RoyalNano/Web",
+              },
+            }
+          );
+
+          const accessToken = tokenResponse.data.access_token;
+
+          // 2️⃣ تجهيز البيانات نفسها اللي جت من الفورم
+          const leadPayload = {
+            full_name: full_name,
+            mobile: mobile,
+            client_16492512972331: client_16492512972331, // ماركة العربية
+            client_16849336084508: client_16849336084508, // الموديل
+            client_16492513797105: client_16492513797105, // الملاحظات
+            client_17293620987926: client_17293620987926, // نوع الخدمة
+            utm_source,
+            utm_medium,
+            utm_campaign,
+          };
+
+          // 3️⃣ إرسالها إلى 8xCRM
+          const eightxResponse = await axios.post(
+            "https://testing.8xcrm.com/api/v1/lead_generation/web_form_routings/storeLead",
+            leadPayload,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${accessToken}`,
+                "User-Agent": "RoyalNano/Web",
+              },
+            }
+          );
+
+          console.log("✅ Lead sent to 8xCRM:", eightxResponse.data);
+        } catch (eightxError) {
+          console.error("❌ Error sending lead to 8xCRM:", eightxError.response?.data || eightxError.message);
+        }
+
         res.status(200).json({
           success: true,
           message: "✅ تم حفظ الطلب وإرساله إلى EngazCRM بنجاح.",
