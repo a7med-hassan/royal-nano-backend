@@ -6,22 +6,24 @@ const axios = require("axios");
 const ENGAZ_WEBHOOK = "https://api.engazcrm.net/webhook/integration/royalnanoceramic/11/8/1";
 
 module.exports = async function handler(req, res) {
-  // ✅ السماح بأكثر من مصدر (للتطوير والإنتاج)
+  // ✅ السماح بالوصول من موقعك ومن البيئة المحلية
   const allowedOrigins = [
-    "https://www.royalnanoceramic.com",  // الموقع الحقيقي
-    "http://localhost:4200"              // وقت التطوير
+    "https://www.royalnanoceramic.com",
+    "http://localhost:4200"
   ];
 
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
+  } else {
+    res.setHeader("Access-Control-Allow-Origin", "https://www.royalnanoceramic.com");
   }
 
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept");
   res.setHeader("Access-Control-Max-Age", "86400");
 
-  // ✅ معالجة preflight requests - يجب أن تكون قبل أي منطق آخر
+  // ✅ لو الطلب من نوع OPTIONS (preflight)
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
@@ -92,73 +94,10 @@ module.exports = async function handler(req, res) {
         console.error("❌ EngazCRM error:", engazError.response?.data || engazError.message);
       }
 
-      // ✅ إرسال البيانات إلى 8xCRM بعد EngazCRM
-      try {
-        console.log("🚀 Sending lead to 8xCRM...");
-
-        // 1️⃣ احصل على Access Token
-        const tokenResponse = await axios.post(
-          "https://testing.8xcrm.com/oauth/token",
-          {
-            grant_type: "password",
-            client_id: "2",
-            client_secret: "mbRrnLa1LzYZTfHtqeUsE2ZJUC53exFl8HBAMYDg",
-            username: "support@8worx.com",
-            password: "123456"
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              "Accept": "application/json",
-              "User-Agent": "RoyalNano/Web"
-            },
-            timeout: 10000
-          }
-        );
-
-        const accessToken = tokenResponse.data.access_token;
-        console.log("✅ 8xCRM Token acquired successfully");
-
-        // 2️⃣ تجهيز البيانات حسب الصيغة اللي 8xCRM عايزها
-        const leadPayload = {
-          title: "Mr",
-          full_name: full_name || "",
-          description: req.body.notes || req.body.client_16492513797105 || "", // 🟢 الملاحظات
-          phones: [
-            {
-              phone: mobile || "",
-              country_code: "EG"
-            }
-          ],
-          form_id: "000001"
-        };
-
-        console.log("📦 8xCRM Lead Payload:", leadPayload);
-
-        // 3️⃣ إرسال البيانات إلى 8xCRM
-        const eightxResponse = await axios.post(
-          "https://testing.8xcrm.com/api/v1/lead_generation/web_form_routings/storeLead",
-          leadPayload,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              "Accept": "application/json",
-              "Authorization": `Bearer ${accessToken}`,
-              "User-Agent": "RoyalNano/Web"
-            },
-            timeout: 10000
-          }
-        );
-
-        console.log("✅ Lead successfully sent to 8xCRM:", eightxResponse.data);
-      } catch (eightxError) {
-        console.error("❌ Error sending lead to 8xCRM:", eightxError.response?.data || eightxError.message);
-      }
-
       // ✅ الرد النهائي
       res.status(200).json({
         success: true,
-        message: "✅ تم حفظ الطلب وإرساله إلى EngazCRM و 8xCRM بنجاح.",
+        message: "✅ تم حفظ الطلب وإرساله إلى EngazCRM بنجاح.",
         data: contact,
         engazResponse: engazResData,
       });
