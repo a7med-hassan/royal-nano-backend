@@ -25,10 +25,13 @@ module.exports = async function handler(req, res) {
 
   if (req.method === "POST") {
     try {
+      console.log("📥 Received request body:", JSON.stringify(req.body));
+
       const { full_name, mobile, notes } = req.body;
 
       // تحقق أساسي
       if (!full_name || !mobile) {
+        console.error("❌ Missing required fields:", { full_name: !!full_name, mobile: !!mobile });
         return res.status(400).json({
           success: false,
           message: "الاسم ورقم الهاتف مطلوبان لإرسال الطلب إلى 8xCRM.",
@@ -38,24 +41,83 @@ module.exports = async function handler(req, res) {
       console.log("🚀 Sending lead to 8xCRM...");
 
       // 1️⃣ الحصول على Access Token من 8xCRM
-      const tokenResponse = await axios.post(
-        "https://testing.8xcrm.com/oauth/token",
-        {
-          grant_type: "password",
-          client_id: "2",
-          client_secret: "mbRrnLa1LzYZTfHtqeUsE2ZJUC53exFl8HBAMYDg",
-          username: "support@8worx.com",
-          password: "123456",
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "User-Agent": "RoyalNano/Web",
-          },
-          timeout: 10000,
+      // ⚠️ مهم: تأكد من أن client_id و client_secret مرتبطين بالحساب (username/password)
+      // احصل على البيانات الصحيحة من لوحة تحكم 8xCRM → API / OAuth Clients
+      // ✅ تنظيف البيانات من المسافات الزائدة
+      const EIGHTX_CLIENT_ID = (process.env.EIGHTX_CLIENT_ID || "2").trim();
+      const EIGHTX_CLIENT_SECRET = (process.env.EIGHTX_CLIENT_SECRET || "mbRrnLa1LzYZTfHtqeUsE2ZJUC53exFl8HBAMYDg").trim();
+      const EIGHTX_USERNAME = (process.env.EIGHTX_USERNAME || "support@8worx.com").trim();
+      const EIGHTX_PASSWORD = (process.env.EIGHTX_PASSWORD || "123456").trim();
+
+      // ✅ Body بالضبط كما هو مطلوب من 8xCRM (Password Grant)
+      const tokenRequestBody = {
+        grant_type: "password",
+        client_id: EIGHTX_CLIENT_ID,
+        client_secret: EIGHTX_CLIENT_SECRET,
+        username: EIGHTX_USERNAME,
+        password: EIGHTX_PASSWORD,
+      };
+
+      console.log("🔑 Requesting 8xCRM Token with credentials:", {
+        grant_type: tokenRequestBody.grant_type,
+        client_id: tokenRequestBody.client_id,
+        username: tokenRequestBody.username,
+        // لا نطبع password/client_secret للأمان
+      });
+
+      let tokenResponse;
+      try {
+        tokenResponse = await axios.post(
+          "https://testing.8xcrm.com/oauth/token",
+          tokenRequestBody,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "Accept": "application/json",
+              "User-Agent": "RoyalNano/Web",
+            },
+            timeout: 10000,
+          }
+        );
+
+        if (!tokenResponse.data || !tokenResponse.data.access_token) {
+          console.error("❌ Invalid token response:", tokenResponse.data);
+          return res.status(500).json({
+            success: false,
+            message: "فشل الحصول على Access Token من 8xCRM.",
+            error: "Invalid token response",
+          });
         }
-      );
+      } catch (tokenError) {
+        const errorData = tokenError.response?.data || {};
+        const errorMessage = errorData.error_description || errorData.error || tokenError.message;
+        
+        console.error("❌ Token error:", {
+          error: errorData.error,
+          description: errorData.error_description,
+          message: errorMessage,
+          status: tokenError.response?.status,
+        });
+
+        // معالجة خاصة لخطأ invalid_client
+        if (errorData.error === "invalid_client") {
+          return res.status(401).json({
+            success: false,
+            message: "❌ بيانات الاعتماد غير صحيحة. تأكد من client_id و client_secret في لوحة تحكم 8xCRM.",
+            error: {
+              code: "invalid_client",
+              description: "Client authentication failed. تأكد من أن client_id و client_secret مرتبطين بالحساب (username/password).",
+              details: "احصل على البيانات الصحيحة من: 8xCRM Dashboard → API / OAuth Clients",
+            },
+          });
+        }
+
+        return res.status(500).json({
+          success: false,
+          message: "فشل الحصول على Access Token من 8xCRM.",
+          error: errorData,
+        });
+      }
 
       const accessToken = tokenResponse.data.access_token;
       console.log("✅ 8xCRM Token acquired successfully");
@@ -74,32 +136,49 @@ module.exports = async function handler(req, res) {
         form_id: "000001",
       };
 
-      console.log("📦 8xCRM Payload:", leadPayload);
+      console.log("📦 8xCRM Payload:", JSON.stringify(leadPayload));
 
       // 3️⃣ إرسال البيانات لـ 8xCRM
-      const eightxResponse = await axios.post(
-        "https://testing.8xcrm.com/api/v1/lead_generation/web_form_routings/storeLead",
-        leadPayload,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "Authorization": `Bearer ${accessToken}`,
-            "User-Agent": "RoyalNano/Web",
-          },
-          timeout: 10000,
-        }
-      );
+      try {
+        const eightxResponse = await axios.post(
+          "https://testing.8xcrm.com/api/v1/lead_generation/web_form_routings/storeLead",
+          leadPayload,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "Accept": "application/json",
+              "Authorization": `Bearer ${accessToken}`,
+              "User-Agent": "RoyalNano/Web",
+            },
+            timeout: 10000,
+          }
+        );
 
-      console.log("✅ 8xCRM Response:", eightxResponse.data);
+        console.log("✅ 8xCRM Response:", JSON.stringify(eightxResponse.data));
 
-      return res.status(200).json({
-        success: true,
-        message: "✅ تم إرسال البيانات إلى 8xCRM بنجاح.",
-        eightxResponse: eightxResponse.data,
-      });
+        return res.status(200).json({
+          success: true,
+          message: "✅ تم إرسال البيانات إلى 8xCRM بنجاح.",
+          eightxResponse: eightxResponse.data,
+        });
+      } catch (leadError) {
+        console.error("❌ Lead submission error:", {
+          status: leadError.response?.status,
+          data: leadError.response?.data,
+          message: leadError.message,
+        });
+        return res.status(500).json({
+          success: false,
+          message: "فشل إرسال البيانات إلى 8xCRM.",
+          error: leadError.response?.data || leadError.message,
+        });
+      }
     } catch (error) {
-      console.error("❌ Error sending to 8xCRM:", error.response?.data || error.message);
+      console.error("❌ General error:", {
+        message: error.message,
+        stack: error.stack,
+        response: error.response?.data,
+      });
       return res.status(500).json({
         success: false,
         message: "حدث خطأ أثناء إرسال البيانات إلى 8xCRM.",
