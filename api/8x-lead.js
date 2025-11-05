@@ -46,7 +46,7 @@ module.exports = async function handler(req, res) {
       // ✅ تنظيف البيانات من المسافات الزائدة
       const EIGHTX_CLIENT_ID = (process.env.EIGHTX_CLIENT_ID || "2").trim();
       const EIGHTX_CLIENT_SECRET = (process.env.EIGHTX_CLIENT_SECRET || "mbRrnLa1LzYZTfHtqeUsE2ZJUC53exFl8HBAMYDg").trim();
-      const EIGHTX_USERNAME = (process.env.EIGHTX_USERNAME || "support@8worx.com").trim();
+      const EIGHTX_USERNAME = (process.env.EIGHTX_USERNAME || "royalnanoceramic@gmail.com").trim();
       const EIGHTX_PASSWORD = (process.env.EIGHTX_PASSWORD || "123456").trim();
 
       // ✅ Body بالضبط كما هو مطلوب من 8xCRM (Password Grant)
@@ -68,7 +68,7 @@ module.exports = async function handler(req, res) {
       let tokenResponse;
       try {
         tokenResponse = await axios.post(
-          "https://testing.8xcrm.com/oauth/token",
+          "https://royalnano.8xcrm.com/oauth/token",
           tokenRequestBody,
           {
             headers: {
@@ -141,7 +141,7 @@ module.exports = async function handler(req, res) {
       // 3️⃣ إرسال البيانات لـ 8xCRM
       try {
         const eightxResponse = await axios.post(
-          "https://testing.8xcrm.com/api/v1/lead_generation/web_form_routings/storeLead",
+          "https://royalnano.8xcrm.com/api/v1/lead_generation/web_form_routings/storeLead",
           leadPayload,
           {
             headers: {
