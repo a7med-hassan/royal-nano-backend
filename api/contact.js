@@ -33,9 +33,11 @@ module.exports = async function handler(req, res) {
       const {
         full_name, // الاسم
         mobile,    // الهاتف
+        notes,     // الملاحظات (حقل أصلي من الفورم)
+        message,   // رسالة (حقل أصلي من الفورم - بديل)
         client_16492512972331, // ماركة العربية (اختياري)
         client_16849336084508, // الموديل (اختياري)
-        client_16492513797105, // الملاحظات (اختياري)
+        client_16492513797105, // الملاحظات (لـ EngazCRM)
         client_17293620987926, // نوع الخدمة (اختياري)
         utm_source,
         utm_medium,
@@ -113,14 +115,14 @@ module.exports = async function handler(req, res) {
 
         const accessToken = tokenResponse.data.access_token;
 
-        // 2️⃣ تجهيز البيانات بصيغة 8xCRM (3 فقط)
+        // 2️⃣ تجهيز البيانات بصيغة 8xCRM (يستخدم الحقول الأصلية من الفورم)
         const leadPayload = {
           title: "Mr",
-          full_name: full_name,
-          description: client_16492513797105 || "",
+          full_name: full_name, // الاسم
+          description: notes || message || "", // الملاحظات (notes أو message)
           phones: [
             {
-              phone: mobile,
+              phone: mobile, // الموبايل
               country_code: "EG",
             },
           ],
