@@ -9,11 +9,15 @@ module.exports = async function handler(req, res) {
   // ✅ السماح بالوصول من موقعك ومن البيئة المحلية
   const allowedOrigins = [
     "https://www.royalnanoceramic.com",
+    "https://royalnanoceramic.com",
     "http://localhost:4200"
   ];
 
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  } else if (origin && origin.includes("royalnanoceramic.com")) {
+    // السماح من أي subdomain لـ royalnanoceramic.com
     res.setHeader("Access-Control-Allow-Origin", origin);
   } else {
     res.setHeader("Access-Control-Allow-Origin", "https://www.royalnanoceramic.com");
