@@ -92,9 +92,11 @@ module.exports = async function handler(req, res) {
         console.error("❌ EngazCRM error:", engazError.response?.data || engazError.message);
       }
 
-      // ✅ إرسال إلى 8xCRM
+      // ✅ إرسال البيانات إلى 8xCRM بعد EngazCRM
       try {
-        // 1️⃣ الحصول على Access Token
+        console.log("🚀 Sending lead to 8xCRM...");
+
+        // 1️⃣ احصل على Access Token
         const tokenResponse = await axios.post(
           "https://testing.8xcrm.com/oauth/token",
           {
@@ -102,48 +104,53 @@ module.exports = async function handler(req, res) {
             client_id: "2",
             client_secret: "mbRrnLa1LzYZTfHtqeUsE2ZJUC53exFl8HBAMYDg",
             username: "support@8worx.com",
-            password: "123456",
+            password: "123456"
           },
           {
             headers: {
               "Content-Type": "application/json",
               "Accept": "application/json",
-              "User-Agent": "RoyalNano/Web",
+              "User-Agent": "RoyalNano/Web"
             },
+            timeout: 10000
           }
         );
 
         const accessToken = tokenResponse.data.access_token;
+        console.log("✅ 8xCRM Token acquired successfully");
 
-        // 2️⃣ تجهيز البيانات بصيغة 8xCRM (يستخدم الحقول الأصلية من الفورم)
+        // 2️⃣ تجهيز البيانات حسب الصيغة اللي 8xCRM عايزها
         const leadPayload = {
           title: "Mr",
-          full_name: full_name, // الاسم
-          description: notes || message || "", // الملاحظات (notes أو message)
+          full_name: full_name || "",
+          description: req.body.notes || req.body.client_16492513797105 || "", // 🟢 الملاحظات
           phones: [
             {
-              phone: mobile, // الموبايل
-              country_code: "EG",
-            },
+              phone: mobile || "",
+              country_code: "EG"
+            }
           ],
-          form_id: "000001", // رقم النموذج بتاعك
+          form_id: "000001"
         };
 
-        // 3️⃣ إرسالها لـ 8xCRM
-        const eightxRes = await axios.post(
+        console.log("📦 8xCRM Lead Payload:", leadPayload);
+
+        // 3️⃣ إرسال البيانات إلى 8xCRM
+        const eightxResponse = await axios.post(
           "https://testing.8xcrm.com/api/v1/lead_generation/web_form_routings/storeLead",
           leadPayload,
           {
             headers: {
               "Content-Type": "application/json",
               "Accept": "application/json",
-              "User-Agent": "RoyalNano/Web",
               "Authorization": `Bearer ${accessToken}`,
+              "User-Agent": "RoyalNano/Web"
             },
+            timeout: 10000
           }
         );
 
-        console.log("✅ Lead sent to 8xCRM:", eightxRes.data);
+        console.log("✅ Lead successfully sent to 8xCRM:", eightxResponse.data);
       } catch (eightxError) {
         console.error("❌ Error sending lead to 8xCRM:", eightxError.response?.data || eightxError.message);
       }
