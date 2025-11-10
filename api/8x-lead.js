@@ -51,7 +51,7 @@ module.exports = async function handler(req, res) {
       const EIGHTX_CLIENT_ID = (process.env.EIGHTX_CLIENT_ID || "2").trim();
       const EIGHTX_CLIENT_SECRET = (process.env.EIGHTX_CLIENT_SECRET || "mbRrnLa1LzYZTfHtqeUsE2ZJUC53exFl8HBAMYDg").trim();
       const EIGHTX_USERNAME = (process.env.EIGHTX_USERNAME || "royalnanoceramic@gmail.com").trim();
-      const EIGHTX_PASSWORD = (process.env.EIGHTX_PASSWORD || "123456").trim();
+      const EIGHTX_PASSWORD = (process.env.EIGHTX_PASSWORD || "..crmpass123..").trim();
 
       // ✅ Body بالضبط كما هو مطلوب من 8xCRM (Password Grant)
       const tokenRequestBody = {
